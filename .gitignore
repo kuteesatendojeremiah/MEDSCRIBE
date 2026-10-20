@@ -1,0 +1,27 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+*.log
+logs/
+.env
+.env.*
+*.tmp
+*.egg-info/
+backend/data/
+
+# Generated exports and recordings must never be committed (the browser saves downloads to the user's Downloads folder)
+consultation_note_*
+consultation_audio_*
+*.approved.docx
+
+# Audio samples and UI screenshots are kept local only
+docs/examples/*.png
+docs/examples/*.wav
+docs/phase1/screenshots/

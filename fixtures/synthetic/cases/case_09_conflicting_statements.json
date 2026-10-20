@@ -1,0 +1,96 @@
+{
+  "id": "case_09_conflicting_statements",
+  "title": "The patient and a relative contradict each other",
+  "covers": [
+    "conflicting statements",
+    "differential"
+  ],
+  "present": [
+    "Patient",
+    "Wife (relative)"
+  ],
+  "segments": [
+    {
+      "id": "s-001",
+      "start": 8,
+      "end": 14,
+      "lang": "en",
+      "original_text": "I have no chest pain.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-002",
+      "start": 16,
+      "end": 22,
+      "lang": "en",
+      "original_text": "He has chest pain every day for a week.",
+      "english_text": null,
+      "speaker_role": "relative",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-003",
+      "start": 24,
+      "end": 30,
+      "lang": "en",
+      "original_text": "Heart failure is possible.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-004",
+      "start": 32,
+      "end": 38,
+      "lang": "en",
+      "original_text": "Any allergies?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-005",
+      "start": 40,
+      "end": 46,
+      "lang": "en",
+      "original_text": "No.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    }
+  ],
+  "expect": {
+    "items": [
+      {
+        "section": "history",
+        "contains": "no chest pain",
+        "polarity": "absent",
+        "role": "patient"
+      },
+      {
+        "section": "history",
+        "contains": "chest pain for 1 week",
+        "polarity": "present",
+        "role": "relative"
+      },
+      {
+        "section": "assessment",
+        "contains": "possible heart failure",
+        "certainty": "possible"
+      }
+    ],
+    "reviews": [
+      {
+        "level": "HIGH",
+        "contains": "Conflicting statements about chest pain"
+      },
+      {
+        "level": "CHECK",
+        "contains": "'Heart failure is possible'"
+      }
+    ]
+  },
+  "_note": "Synthetic, fictional consultation (Blueprint 14 Phase 6). No real patient data. Luganda lines, where present, are illustrative and must be checked by a fluent speaker before use in training material."
+}

@@ -1,0 +1,155 @@
+{
+  "_note": "Synthetic, fictional (Blueprint §18.2). Luganda lines are illustrative and must be checked by a fluent speaker before use in training material.",
+  "segments": [
+    {
+      "id": "s-001",
+      "start": 8,
+      "end": 15,
+      "lang": "lug+en",
+      "original_text": "Musawo, nfuna obulumi mu kifuba for three days.",
+      "english_text": "Doctor, I have chest pain for three days.",
+      "speaker_role": "patient",
+      "confidence": 0.93
+    },
+    {
+      "id": "s-002",
+      "start": 16,
+      "end": 18,
+      "lang": "en",
+      "original_text": "Does the pain go to your arm or jaw?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.98
+    },
+    {
+      "id": "s-003",
+      "start": 19,
+      "end": 24,
+      "lang": "lug",
+      "original_text": "Nedda.",
+      "english_text": "No.",
+      "speaker_role": "patient",
+      "confidence": 0.9
+    },
+    {
+      "id": "s-004",
+      "start": 25,
+      "end": 30,
+      "lang": "en",
+      "original_text": "Yes, on the stairs it becomes bad.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.97
+    },
+    {
+      "id": "s-005",
+      "start": 31,
+      "end": 42,
+      "lang": "lug",
+      "original_text": "Ekiro azuukuka nga takyasobola kussa bulungi.",
+      "english_text": "At night he wakes up unable to breathe well.",
+      "speaker_role": "relative",
+      "confidence": 0.88
+    },
+    {
+      "id": "s-006",
+      "start": 43,
+      "end": 49,
+      "lang": "en",
+      "original_text": "Not that I know. (allergies)",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-007",
+      "start": 50,
+      "end": 61,
+      "lang": "en",
+      "original_text": "The one for pressure… amlodipine, I think.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.9
+    },
+    {
+      "id": "s-008",
+      "start": 62,
+      "end": 69,
+      "lang": "en",
+      "original_text": "His weight is 82 kilograms.",
+      "english_text": null,
+      "speaker_role": "other_clinician",
+      "confidence": 0.97
+    },
+    {
+      "id": "s-009",
+      "start": 70,
+      "end": 77,
+      "lang": "en",
+      "original_text": "Pulse is irregular, about 110. Blood pressure 150 over 95.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.98
+    },
+    {
+      "id": "s-010",
+      "start": 78,
+      "end": 85,
+      "lang": "en",
+      "original_text": "There are fine crackles at both lung bases.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.98
+    },
+    {
+      "id": "s-011",
+      "start": 86,
+      "end": 92,
+      "lang": "en",
+      "original_text": "The ECG shows atrial fibrillation.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.98
+    },
+    {
+      "id": "s-012",
+      "start": 93,
+      "end": 100,
+      "lang": "en",
+      "original_text": "My impression is atrial fibrillation. Heart failure is possible; we need an echo.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.97
+    },
+    {
+      "id": "s-013",
+      "start": 101,
+      "end": 108,
+      "lang": "en",
+      "original_text": "We start bisoprolol [inaudible] milligrams once daily.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.6
+    },
+    {
+      "id": "s-014",
+      "start": 109,
+      "end": 114,
+      "lang": "en",
+      "original_text": "[inaudible]",
+      "english_text": null,
+      "speaker_role": "unknown",
+      "confidence": 0.2
+    },
+    {
+      "id": "s-015",
+      "start": 115,
+      "end": 121,
+      "lang": "en",
+      "original_text": "Do an echo and kidney function, and come back in two weeks.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.97
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "review_seconds": 1,
+  "approval_seconds": 0,
+  "edits_by_section": {
+    "exam": 1,
+    "treatment": 1
+  },
+  "review_items_by_level": {
+    "HIGH": 2,
+    "CHECK": 2,
+    "INFO": 1
+  },
+  "review_items_final_status": {
+    "unverified": 1,
+    "resolved": 1,
+    "open": 3
+  },
+  "segment_edits": 0,
+  "role_reassignments": 0,
+  "items_added": 1,
+  "items_deleted": 0,
+  "items_moved": 0,
+  "high_items_opened": 2,
+  "preview_visits": 1,
+  "approvals": 1,
+  "recoverable_errors": 0,
+  "terminal_errors": 0
+}

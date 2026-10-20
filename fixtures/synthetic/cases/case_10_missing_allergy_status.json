@@ -1,0 +1,66 @@
+{
+  "id": "case_10_missing_allergy_status",
+  "title": "Allergy status never discussed",
+  "covers": [
+    "missing allergy status",
+    "empty sections"
+  ],
+  "present": [
+    "Patient"
+  ],
+  "segments": [
+    {
+      "id": "s-001",
+      "start": 8,
+      "end": 14,
+      "lang": "en",
+      "original_text": "I have a cough for four days.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-002",
+      "start": 16,
+      "end": 22,
+      "lang": "en",
+      "original_text": "We will do a chest x-ray.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    }
+  ],
+  "expect": {
+    "items": [
+      {
+        "section": "history",
+        "contains": "cough for 4 days"
+      },
+      {
+        "section": "plan",
+        "contains": "chest x-ray"
+      }
+    ],
+    "no_items": [
+      {
+        "section": "meds_allergies",
+        "contains": "allerg"
+      }
+    ],
+    "reviews": [
+      {
+        "level": "HIGH",
+        "contains": "Allergy status unknown"
+      },
+      {
+        "level": "INFO",
+        "contains": "section empty"
+      },
+      {
+        "level": "INFO",
+        "contains": "not recorded"
+      }
+    ]
+  },
+  "_note": "Synthetic, fictional consultation (Blueprint 14 Phase 6). No real patient data. Luganda lines, where present, are illustrative and must be checked by a fluent speaker before use in training material."
+}

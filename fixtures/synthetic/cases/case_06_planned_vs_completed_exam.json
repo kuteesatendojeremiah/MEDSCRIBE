@@ -1,0 +1,114 @@
+{
+  "id": "case_06_planned_vs_completed_exam",
+  "title": "Planned examinations and tests are not findings",
+  "covers": [
+    "planned vs completed exam"
+  ],
+  "present": [
+    "Patient"
+  ],
+  "segments": [
+    {
+      "id": "s-001",
+      "start": 8,
+      "end": 14,
+      "lang": "en",
+      "original_text": "Let me listen to your chest.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-002",
+      "start": 16,
+      "end": 22,
+      "lang": "en",
+      "original_text": "I will check your pulse.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-003",
+      "start": 24,
+      "end": 30,
+      "lang": "en",
+      "original_text": "I can hear fine crackles at the left base.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-004",
+      "start": 32,
+      "end": 38,
+      "lang": "en",
+      "original_text": "We will do an ECG.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-005",
+      "start": 40,
+      "end": 46,
+      "lang": "en",
+      "original_text": "The echo showed an ejection fraction of 35 percent.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-006",
+      "start": 48,
+      "end": 54,
+      "lang": "en",
+      "original_text": "Any allergies?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-007",
+      "start": 56,
+      "end": 62,
+      "lang": "en",
+      "original_text": "No.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    }
+  ],
+  "expect": {
+    "items": [
+      {
+        "section": "exam",
+        "contains": "fine crackles at the left base",
+        "polarity": "present"
+      },
+      {
+        "section": "plan",
+        "contains": "ECG"
+      },
+      {
+        "section": "investigations",
+        "contains": "echocardiogram: an ejection fraction of 35 percent"
+      }
+    ],
+    "no_items": [
+      {
+        "section": "exam",
+        "contains": "listen"
+      },
+      {
+        "section": "exam",
+        "contains": "pulse"
+      },
+      {
+        "section": "investigations",
+        "contains": "ecg"
+      }
+    ]
+  },
+  "_note": "Synthetic, fictional consultation (Blueprint 14 Phase 6). No real patient data. Luganda lines, where present, are illustrative and must be checked by a fluent speaker before use in training material."
+}

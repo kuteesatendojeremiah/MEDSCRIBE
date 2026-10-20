@@ -1,0 +1,320 @@
+{
+  "header": {
+    "patient_label": "Ronald Kato (FICTIONAL) · 58 years · Male",
+    "clinic": "Cardiology clinic (demonstration)",
+    "datetime": "2026-10-19T10:12:00+03:00",
+    "clinician": "Dr. A. Nankya (fictional), cardiology",
+    "temp_ref": "OPD-07",
+    "languages": [
+      "Luganda",
+      "English"
+    ],
+    "present": [
+      "Patient",
+      "Wife (relative)",
+      "Nurse"
+    ],
+    "consent_statement": "Patient informed that the consultation would be recorded to draft this note and agreed verbally (confirmed by clinician)."
+  },
+  "items": [
+    {
+      "id": "f-001",
+      "section": "history",
+      "body_system": null,
+      "text": "Chest pain for 3 days",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": "3 days",
+      "source": {
+        "type": "segment",
+        "segment_id": "s-001",
+        "speaker_role": "patient"
+      }
+    },
+    {
+      "id": "f-002",
+      "section": "history",
+      "body_system": null,
+      "text": "Pain worse on exertion (climbing stairs)",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-004",
+        "speaker_role": "patient"
+      }
+    },
+    {
+      "id": "f-003",
+      "section": "history",
+      "body_system": null,
+      "text": "No radiation of pain to arm or jaw (patient denied)",
+      "polarity": "absent",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-003",
+        "speaker_role": "patient"
+      }
+    },
+    {
+      "id": "f-004",
+      "section": "history",
+      "body_system": null,
+      "text": "Wakes at night unable to breathe well - reported by wife, not by patient",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-005",
+        "speaker_role": "relative"
+      }
+    },
+    {
+      "id": "f-005",
+      "section": "meds_allergies",
+      "body_system": null,
+      "text": "Amlodipine - dose and frequency not stated (patient unsure)",
+      "polarity": "present",
+      "certainty": "possible",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-007",
+        "speaker_role": "patient"
+      }
+    },
+    {
+      "id": "f-006",
+      "section": "meds_allergies",
+      "body_system": null,
+      "text": "Allergies: no known drug allergies (patient-reported)",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-006",
+        "speaker_role": "patient"
+      }
+    },
+    {
+      "id": "f-007",
+      "section": "vitals",
+      "body_system": null,
+      "text": "Weight 82 kg",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-008",
+        "speaker_role": "other_clinician"
+      }
+    },
+    {
+      "id": "f-008",
+      "section": "vitals",
+      "body_system": "cvs",
+      "text": "Pulse approx. 110/min, irregular",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-009",
+        "speaker_role": "doctor"
+      }
+    },
+    {
+      "id": "f-009",
+      "section": "vitals",
+      "body_system": null,
+      "text": "BP 150/95 mmHg",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-009",
+        "speaker_role": "doctor"
+      }
+    },
+    {
+      "id": "f-010",
+      "section": "exam",
+      "body_system": "resp",
+      "text": "Fine crackles at both lung bases",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-010",
+        "speaker_role": "doctor"
+      }
+    },
+    {
+      "id": "f-011",
+      "section": "exam",
+      "body_system": "cvs",
+      "text": "Pulse irregular",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-009",
+        "speaker_role": "doctor"
+      }
+    },
+    {
+      "id": "f-012",
+      "section": "exam",
+      "body_system": "cvs",
+      "text": "Mild bilateral pitting ankle oedema",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "clinician_entered"
+      }
+    },
+    {
+      "id": "f-013",
+      "section": "investigations",
+      "body_system": "cvs",
+      "text": "ECG: atrial fibrillation (clinician's reading during consultation)",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-011",
+        "speaker_role": "doctor"
+      }
+    },
+    {
+      "id": "f-014",
+      "section": "assessment",
+      "body_system": "cvs",
+      "text": "Atrial fibrillation - clinician-stated",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-012",
+        "speaker_role": "doctor"
+      }
+    },
+    {
+      "id": "f-015",
+      "section": "assessment",
+      "body_system": "cvs",
+      "text": "Possible heart failure - differential, NOT confirmed; for echocardiography",
+      "polarity": "present",
+      "certainty": "possible",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-012",
+        "speaker_role": "doctor"
+      }
+    },
+    {
+      "id": "f-016",
+      "section": "treatment",
+      "body_system": null,
+      "text": "Bisoprolol 2.5 mg orally once daily (dose and route entered by clinician at review; audio unclear)",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "clinician_entered"
+      }
+    },
+    {
+      "id": "f-017",
+      "section": "plan",
+      "body_system": null,
+      "text": "Echocardiogram",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-015",
+        "speaker_role": "doctor"
+      }
+    },
+    {
+      "id": "f-018",
+      "section": "plan",
+      "body_system": null,
+      "text": "Renal function tests",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": null,
+      "source": {
+        "type": "segment",
+        "segment_id": "s-015",
+        "speaker_role": "doctor"
+      }
+    },
+    {
+      "id": "f-019",
+      "section": "plan",
+      "body_system": null,
+      "text": "Review in 2 weeks",
+      "polarity": "present",
+      "certainty": "confirmed",
+      "time": "2 weeks",
+      "source": {
+        "type": "segment",
+        "segment_id": "s-015",
+        "speaker_role": "doctor"
+      }
+    }
+  ],
+  "review_items": [
+    {
+      "id": "r-001",
+      "level": "HIGH",
+      "item_id": "f-016",
+      "reason": "Bisoprolol dose inaudible",
+      "status": "resolved"
+    },
+    {
+      "id": "r-002",
+      "level": "HIGH",
+      "item_id": "f-005",
+      "reason": "Amlodipine dose/frequency not stated",
+      "status": "unverified"
+    },
+    {
+      "id": "r-003",
+      "level": "CHECK",
+      "item_id": "f-015",
+      "reason": "'Heart failure is possible' - confirm as differential only",
+      "status": "resolved"
+    },
+    {
+      "id": "r-004",
+      "level": "CHECK",
+      "item_id": null,
+      "reason": "Unknown speaker, inaudible at 01:49 (no clinical content)",
+      "status": "unverified"
+    },
+    {
+      "id": "r-005",
+      "level": "INFO",
+      "item_id": null,
+      "reason": "Respiratory rate, SpO2, temperature not recorded",
+      "status": "resolved"
+    }
+  ]
+}

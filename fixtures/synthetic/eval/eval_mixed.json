@@ -1,0 +1,101 @@
+{
+  "_note": "Synthetic evaluation set (Blueprint 14 Phase 2, 15.1). Reference text and speaker are the truth; hypothesis is what the MOCK provider returns, with a few deliberate errors so the harness has something to measure. Luganda lines are illustrative and must be checked by a fluent speaker.",
+  "segments": [
+    {
+      "reference": {
+        "text": "Musawo, nfuna obulumi mu kifuba for three days.",
+        "speaker_role": "patient"
+      },
+      "hypothesis": {
+        "id": "s-001",
+        "start": 0,
+        "end": 5,
+        "lang": "lug+en",
+        "original_text": "Musawo nfuna obulumi mu kifuba for three days.",
+        "english_text": "Doctor, I have chest pain for three days.",
+        "speaker_role": "patient",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "Does the pain go to your arm or jaw?",
+        "speaker_role": "doctor"
+      },
+      "hypothesis": {
+        "id": "s-002",
+        "start": 8,
+        "end": 13,
+        "lang": "en",
+        "original_text": "Does the pain go to your arm or jaw?",
+        "english_text": null,
+        "speaker_role": "doctor",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "Nedda.",
+        "speaker_role": "patient"
+      },
+      "hypothesis": {
+        "id": "s-003",
+        "start": 14,
+        "end": 19,
+        "lang": "lug",
+        "original_text": "Nedda.",
+        "english_text": "No.",
+        "speaker_role": "patient",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "Ekiro azuukuka nga takyasobola kussa bulungi.",
+        "speaker_role": "relative"
+      },
+      "hypothesis": {
+        "id": "s-004",
+        "start": 20,
+        "end": 25,
+        "lang": "lug+en",
+        "original_text": "Ekiro azuukuka nga takyasobola kussa bulungi.",
+        "english_text": "At night he wakes up unable to breathe well.",
+        "speaker_role": "relative",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "His weight is 82 kilograms.",
+        "speaker_role": "other_clinician"
+      },
+      "hypothesis": {
+        "id": "s-005",
+        "start": 28,
+        "end": 33,
+        "lang": "en",
+        "original_text": "His weight is 82 kilogram.",
+        "english_text": null,
+        "speaker_role": "doctor",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "[inaudible]",
+        "speaker_role": "unknown"
+      },
+      "hypothesis": {
+        "id": "s-006",
+        "start": 34,
+        "end": 39,
+        "lang": "en",
+        "original_text": "[inaudible]",
+        "english_text": null,
+        "speaker_role": "unknown",
+        "confidence": 0.2
+      }
+    }
+  ]
+}

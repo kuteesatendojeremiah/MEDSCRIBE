@@ -1,0 +1,85 @@
+{
+  "_note": "Synthetic evaluation set (Blueprint 14 Phase 2, 15.1). Reference text and speaker are the truth; hypothesis is what the MOCK provider returns, with a few deliberate errors so the harness has something to measure. Luganda lines are illustrative and must be checked by a fluent speaker.",
+  "segments": [
+    {
+      "reference": {
+        "text": "Olwadde otya leero?",
+        "speaker_role": "doctor"
+      },
+      "hypothesis": {
+        "id": "s-001",
+        "start": 0,
+        "end": 5,
+        "lang": "lug",
+        "original_text": "Olwadde otya leero?",
+        "english_text": "How are you today?",
+        "speaker_role": "doctor",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "Nnina obulumi mu kifuba.",
+        "speaker_role": "patient"
+      },
+      "hypothesis": {
+        "id": "s-002",
+        "start": 6,
+        "end": 11,
+        "lang": "lug",
+        "original_text": "Nnina obulumi mu kifuba.",
+        "english_text": "I have pain in the chest.",
+        "speaker_role": "patient",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "Nfuna obuzibu okussa.",
+        "speaker_role": "patient"
+      },
+      "hypothesis": {
+        "id": "s-003",
+        "start": 12,
+        "end": 17,
+        "lang": "lug",
+        "original_text": "Nfuna obuzibu okusa.",
+        "english_text": "I have trouble breathing.",
+        "speaker_role": "patient",
+        "confidence": 0.85
+      }
+    },
+    {
+      "reference": {
+        "text": "Yeebuuzizza nnyo ekiro.",
+        "speaker_role": "relative"
+      },
+      "hypothesis": {
+        "id": "s-004",
+        "start": 18,
+        "end": 23,
+        "lang": "lug",
+        "original_text": "Yeebuuzizza nnyo ekiro.",
+        "english_text": "He is very restless at night.",
+        "speaker_role": "relative",
+        "confidence": 0.82
+      }
+    },
+    {
+      "reference": {
+        "text": "Nnywa eddagala buli lunaku.",
+        "speaker_role": "patient"
+      },
+      "hypothesis": {
+        "id": "s-005",
+        "start": 24,
+        "end": 29,
+        "lang": "lug",
+        "original_text": "Nnywa eddagala buli lunaku.",
+        "english_text": "I take medicine every day.",
+        "speaker_role": "patient",
+        "confidence": 0.95
+      }
+    }
+  ]
+}

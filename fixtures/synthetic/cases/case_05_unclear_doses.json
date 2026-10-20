@@ -1,0 +1,105 @@
+{
+  "id": "case_05_unclear_doses",
+  "title": "Doses that are inaudible, forgotten or half-stated are flagged, never completed",
+  "covers": [
+    "unclear doses",
+    "no invention"
+  ],
+  "present": [
+    "Patient"
+  ],
+  "segments": [
+    {
+      "id": "s-001",
+      "start": 8,
+      "end": 14,
+      "lang": "en",
+      "original_text": "We start carvedilol [inaudible] milligrams twice daily.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-002",
+      "start": 16,
+      "end": 22,
+      "lang": "en",
+      "original_text": "I take aspirin, I don't remember how much.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-003",
+      "start": 24,
+      "end": 30,
+      "lang": "en",
+      "original_text": "And furosemide 40 mg in the morning.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-004",
+      "start": 32,
+      "end": 38,
+      "lang": "en",
+      "original_text": "Any allergies?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-005",
+      "start": 40,
+      "end": 46,
+      "lang": "en",
+      "original_text": "No.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    }
+  ],
+  "expect": {
+    "items": [
+      {
+        "section": "treatment",
+        "contains": "carvedilol twice daily",
+        "polarity": "present"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "aspirin"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "furosemide 40 mg"
+      }
+    ],
+    "no_items": [
+      {
+        "section": "treatment",
+        "contains": "mg"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "aspirin 75"
+      }
+    ],
+    "reviews": [
+      {
+        "level": "HIGH",
+        "contains": "Carvedilol dose inaudible"
+      },
+      {
+        "level": "HIGH",
+        "contains": "Aspirin dose and frequency not stated"
+      },
+      {
+        "level": "HIGH",
+        "contains": "Furosemide frequency not stated"
+      }
+    ]
+  },
+  "_note": "Synthetic, fictional consultation (Blueprint 14 Phase 6). No real patient data. Luganda lines, where present, are illustrative and must be checked by a fluent speaker before use in training material."
+}

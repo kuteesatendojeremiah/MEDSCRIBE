@@ -1,0 +1,117 @@
+{
+  "_note": "Synthetic evaluation set (Blueprint 14 Phase 2, 15.1). Reference text and speaker are the truth; hypothesis is what the MOCK provider returns, with a few deliberate errors so the harness has something to measure. Luganda lines are illustrative and must be checked by a fluent speaker.",
+  "segments": [
+    {
+      "reference": {
+        "text": "What brings you in today?",
+        "speaker_role": "doctor"
+      },
+      "hypothesis": {
+        "id": "s-001",
+        "start": 0,
+        "end": 5,
+        "lang": "en",
+        "original_text": "What brings you in today?",
+        "english_text": null,
+        "speaker_role": "doctor",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "I have been getting palpitations for two weeks.",
+        "speaker_role": "patient"
+      },
+      "hypothesis": {
+        "id": "s-002",
+        "start": 6,
+        "end": 11,
+        "lang": "en",
+        "original_text": "I have been getting palpitations for two weeks.",
+        "english_text": null,
+        "speaker_role": "patient",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "Do you feel dizzy when they happen?",
+        "speaker_role": "doctor"
+      },
+      "hypothesis": {
+        "id": "s-003",
+        "start": 12,
+        "end": 17,
+        "lang": "en",
+        "original_text": "Do you feel dizzy when they happen?",
+        "english_text": null,
+        "speaker_role": "doctor",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "No, I do not feel dizzy.",
+        "speaker_role": "patient"
+      },
+      "hypothesis": {
+        "id": "s-004",
+        "start": 18,
+        "end": 23,
+        "lang": "en",
+        "original_text": "No I do not feel dizzy",
+        "english_text": null,
+        "speaker_role": "patient",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "Blood pressure is 130 over 80.",
+        "speaker_role": "other_clinician"
+      },
+      "hypothesis": {
+        "id": "s-005",
+        "start": 24,
+        "end": 29,
+        "lang": "en",
+        "original_text": "Blood pressure is 130 over 80.",
+        "english_text": null,
+        "speaker_role": "other_clinician",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "I will order an ECG today.",
+        "speaker_role": "doctor"
+      },
+      "hypothesis": {
+        "id": "s-006",
+        "start": 30,
+        "end": 35,
+        "lang": "en",
+        "original_text": "I will order an ECG to day.",
+        "english_text": null,
+        "speaker_role": "doctor",
+        "confidence": 0.95
+      }
+    },
+    {
+      "reference": {
+        "text": "Okay thank you doctor.",
+        "speaker_role": "patient"
+      },
+      "hypothesis": {
+        "id": "s-007",
+        "start": 36,
+        "end": 41,
+        "lang": "en",
+        "original_text": "Okay thank you doctor.",
+        "english_text": null,
+        "speaker_role": "unknown",
+        "confidence": 0.4
+      }
+    }
+  ]
+}

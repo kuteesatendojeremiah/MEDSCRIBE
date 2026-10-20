@@ -1,0 +1,87 @@
+{
+  "id": "case_07_code_switching",
+  "title": "Luganda and English mixed inside one sentence",
+  "covers": [
+    "code-switching"
+  ],
+  "present": [
+    "Patient"
+  ],
+  "segments": [
+    {
+      "id": "s-001",
+      "start": 8,
+      "end": 14,
+      "lang": "lug+en",
+      "original_text": "Nfuna obulumi mu kifuba when I walk uphill.",
+      "english_text": "I have chest pain when I walk uphill.",
+      "speaker_role": "patient",
+      "confidence": 0.9
+    },
+    {
+      "id": "s-002",
+      "start": 16,
+      "end": 22,
+      "lang": "lug+en",
+      "original_text": "Nnywa amlodipine buli lunaku.",
+      "english_text": "I take amlodipine every day.",
+      "speaker_role": "patient",
+      "confidence": 0.88
+    },
+    {
+      "id": "s-003",
+      "start": 24,
+      "end": 30,
+      "lang": "en",
+      "original_text": "Any allergies?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-004",
+      "start": 32,
+      "end": 38,
+      "lang": "lug",
+      "original_text": "Nedda.",
+      "english_text": "No.",
+      "speaker_role": "patient",
+      "confidence": 0.9
+    }
+  ],
+  "expect": {
+    "items": [
+      {
+        "section": "history",
+        "contains": "chest pain",
+        "polarity": "present",
+        "role": "patient"
+      },
+      {
+        "section": "history",
+        "contains": "worse on exertion"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "amlodipine once daily"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "no known drug allergies"
+      }
+    ],
+    "reviews": [
+      {
+        "level": "HIGH",
+        "contains": "Amlodipine dose not stated"
+      }
+    ],
+    "no_reviews": [
+      {
+        "level": "CHECK",
+        "contains": "Uncertain translation"
+      }
+    ]
+  },
+  "_note": "Synthetic, fictional consultation (Blueprint 14 Phase 6). No real patient data. Luganda lines, where present, are illustrative and must be checked by a fluent speaker before use in training material."
+}

@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mediscribe.local/schema/note_schema.json",
+  "title": "Mediscribe consultation note (Blueprint v3.0, Appendix A)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["header", "items", "review_items"],
+  "properties": {
+    "header": { "$ref": "#/$defs/header" },
+    "items": { "type": "array", "items": { "$ref": "#/$defs/item" } },
+    "review_items": { "type": "array", "items": { "$ref": "#/$defs/review_item" } },
+    "approval": { "$ref": "#/$defs/approval" }
+  },
+  "$defs": {
+    "section": {
+      "enum": [
+        "history",
+        "meds_allergies",
+        "vitals",
+        "exam",
+        "investigations",
+        "assessment",
+        "treatment",
+        "plan"
+      ]
+    },
+    "body_system": { "enum": ["general", "cvs", "resp", "gi", "renal", "neuro", "msk", "other"] },
+    "polarity": { "enum": ["present", "absent"] },
+    "certainty": { "enum": ["confirmed", "possible", "rule_out"] },
+    "source_type": { "enum": ["segment", "clinician_entered", "clinician_edited"] },
+    "speaker_role": {
+      "enum": ["doctor", "patient", "relative", "other_clinician", "interpreter", "unknown"]
+    },
+    "review_level": { "enum": ["HIGH", "CHECK", "INFO"] },
+    "review_status": { "enum": ["open", "resolved", "unverified"] },
+    "patient": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "maxLength": 120 },
+        "age": { "type": "string", "maxLength": 20 },
+        "sex": { "type": "string", "maxLength": 20 },
+        "file_number": { "type": "string", "maxLength": 40 },
+        "residence": { "type": "string", "maxLength": 120 }
+      }
+    },
+    "header": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clinic",
+        "datetime",
+        "clinician",
+        "temp_ref",
+        "languages",
+        "present",
+        "consent_statement"
+      ],
+      "properties": {
+        "patient_label": { "type": "string" },
+        "patient": { "$ref": "#/$defs/patient" },
+        "clinic": { "type": "string" },
+        "datetime": { "type": "string" },
+        "clinician": { "type": "string" },
+        "temp_ref": { "type": "string" },
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "present": { "type": "array", "items": { "type": "string" } },
+        "consent_statement": { "type": "string" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "$ref": "#/$defs/source_type" },
+        "segment_id": { "type": "string" },
+        "speaker_role": { "$ref": "#/$defs/speaker_role" }
+      },
+      "if": { "properties": { "type": { "const": "segment" } } },
+      "then": { "required": ["type", "segment_id", "speaker_role"] }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "section", "text", "polarity", "certainty", "source"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "section": { "$ref": "#/$defs/section" },
+        "body_system": { "oneOf": [{ "$ref": "#/$defs/body_system" }, { "type": "null" }] },
+        "text": { "type": "string", "minLength": 1 },
+        "polarity": { "$ref": "#/$defs/polarity" },
+        "certainty": { "$ref": "#/$defs/certainty" },
+        "time": { "type": ["string", "null"] },
+        "source": { "$ref": "#/$defs/source" }
+      }
+    },
+    "review_item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "level", "item_id", "reason", "status"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "level": { "$ref": "#/$defs/review_level" },
+        "item_id": { "type": ["string", "null"] },
+        "reason": { "type": "string", "minLength": 1 },
+        "status": { "$ref": "#/$defs/review_status" }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approved_by", "approved_at", "version_hash"],
+      "properties": {
+        "approved_by": { "type": "string" },
+        "approved_at": { "type": "string" },
+        "version_hash": { "type": "string" }
+      }
+    }
+  }
+}

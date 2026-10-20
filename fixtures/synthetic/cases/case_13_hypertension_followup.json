@@ -1,0 +1,367 @@
+{
+  "id": "case_13_hypertension_followup",
+  "title": "Second worked example: hypertension follow-up with ankle swelling (real speech-model output)",
+  "covers": [
+    "spoken numbers",
+    "two medicines in one sentence",
+    "allergy named",
+    "questions vs facts"
+  ],
+  "present": [
+    "Patient"
+  ],
+  "segments": [
+    {
+      "id": "s-001",
+      "start": 0.0,
+      "end": 4.8,
+      "lang": "en",
+      "original_text": "Good morning. What brings you in today?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.908,
+      "voice": 1
+    },
+    {
+      "id": "s-002",
+      "start": 4.8,
+      "end": 12.3,
+      "lang": "en",
+      "original_text": "I have been breathless when I climb stairs for two weeks. My ankles are also swollen.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.908,
+      "voice": 2
+    },
+    {
+      "id": "s-003",
+      "start": 12.3,
+      "end": 15.7,
+      "lang": "en",
+      "original_text": "Do you have chest pain?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.908,
+      "voice": 1
+    },
+    {
+      "id": "s-004",
+      "start": 15.7,
+      "end": 18.1,
+      "lang": "en",
+      "original_text": "No.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.908,
+      "voice": 2
+    },
+    {
+      "id": "s-005",
+      "start": 18.1,
+      "end": 22.3,
+      "lang": "en",
+      "original_text": "Do you wake up at night short of breath?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.908,
+      "voice": 1
+    },
+    {
+      "id": "s-006",
+      "start": 22.3,
+      "end": 24.8,
+      "lang": "en",
+      "original_text": "No.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.908,
+      "voice": 2
+    },
+    {
+      "id": "s-007",
+      "start": 24.8,
+      "end": 28.5,
+      "lang": "en",
+      "original_text": "Any allergies to medicines?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.908,
+      "voice": 1
+    },
+    {
+      "id": "s-008",
+      "start": 28.5,
+      "end": 32.2,
+      "lang": "en",
+      "original_text": "I am allergic to penicillin.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.908,
+      "voice": 2
+    },
+    {
+      "id": "s-009",
+      "start": 32.2,
+      "end": 35.8,
+      "lang": "en",
+      "original_text": "What medicines do you take?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.908,
+      "voice": 1
+    },
+    {
+      "id": "s-010",
+      "start": 35.8,
+      "end": 43.5,
+      "lang": "en",
+      "original_text": "I take amlodipine five milligrams once daily and metformin five hundred milligrams twice daily.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.908,
+      "voice": 2
+    },
+    {
+      "id": "s-011",
+      "start": 43.6,
+      "end": 47.7,
+      "lang": "en",
+      "original_text": "Blood pressure is one hundred and sixty over one hundred.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.877,
+      "voice": 1
+    },
+    {
+      "id": "s-012",
+      "start": 47.7,
+      "end": 50.2,
+      "lang": "en",
+      "original_text": "Pulse is eighty-eight and regular.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.877,
+      "voice": 1
+    },
+    {
+      "id": "s-013",
+      "start": 50.2,
+      "end": 53.0,
+      "lang": "en",
+      "original_text": "Weight is seventy-four kilograms.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.877,
+      "voice": 1
+    },
+    {
+      "id": "s-014",
+      "start": 53.0,
+      "end": 56.5,
+      "lang": "en",
+      "original_text": "On examination there is bilateral pitting edema.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.877,
+      "voice": 1
+    },
+    {
+      "id": "s-015",
+      "start": 56.5,
+      "end": 61.2,
+      "lang": "en",
+      "original_text": "I can hear fine crackles at both lung bases.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.877,
+      "voice": 1
+    },
+    {
+      "id": "s-016",
+      "start": 61.2,
+      "end": 64.2,
+      "lang": "en",
+      "original_text": "Okay doctor.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.877,
+      "voice": 2
+    },
+    {
+      "id": "s-017",
+      "start": 64.2,
+      "end": 66.8,
+      "lang": "en",
+      "original_text": "My impression is hypertension.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.877,
+      "voice": 1
+    },
+    {
+      "id": "s-018",
+      "start": 66.8,
+      "end": 69.1,
+      "lang": "en",
+      "original_text": "Heart failure is possible.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.877,
+      "voice": 1
+    },
+    {
+      "id": "s-019",
+      "start": 69.1,
+      "end": 73.0,
+      "lang": "en",
+      "original_text": "Start ramipril five milligrams orally once daily.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.877,
+      "voice": 1
+    },
+    {
+      "id": "s-020",
+      "start": 73.0,
+      "end": 76.7,
+      "lang": "en",
+      "original_text": "Do an echocardiogram and renal function tests.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.805,
+      "voice": 1
+    },
+    {
+      "id": "s-021",
+      "start": 76.7,
+      "end": 78.7,
+      "lang": "en",
+      "original_text": "Come back in four weeks.",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.805,
+      "voice": 1
+    }
+  ],
+  "expect": {
+    "items": [
+      {
+        "section": "history",
+        "contains": "shortness of breath for 2 weeks",
+        "polarity": "present",
+        "role": "patient"
+      },
+      {
+        "section": "history",
+        "contains": "worse on exertion (climbing stairs)"
+      },
+      {
+        "section": "history",
+        "contains": "no chest pain",
+        "polarity": "absent"
+      },
+      {
+        "section": "history",
+        "contains": "no night-time breathlessness",
+        "polarity": "absent"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "allergy: penicillin"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "amlodipine 5 mg once daily"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "metformin 500 mg twice daily"
+      },
+      {
+        "section": "vitals",
+        "contains": "bp 160/100 mmhg"
+      },
+      {
+        "section": "vitals",
+        "contains": "pulse 88/min, regular"
+      },
+      {
+        "section": "vitals",
+        "contains": "weight 74 kg"
+      },
+      {
+        "section": "exam",
+        "contains": "pitting"
+      },
+      {
+        "section": "exam",
+        "contains": "fine crackles at both lung bases"
+      },
+      {
+        "section": "assessment",
+        "contains": "hypertension",
+        "certainty": "confirmed"
+      },
+      {
+        "section": "assessment",
+        "contains": "possible heart failure",
+        "certainty": "possible"
+      },
+      {
+        "section": "treatment",
+        "contains": "ramipril 5 mg orally once daily"
+      },
+      {
+        "section": "plan",
+        "contains": "echocardiogram"
+      },
+      {
+        "section": "plan",
+        "contains": "renal function tests"
+      },
+      {
+        "section": "plan",
+        "contains": "review in 4 weeks"
+      }
+    ],
+    "no_items": [
+      {
+        "section": "meds_allergies",
+        "contains": "penicillin –"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "metformin 5 mg"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "amlodipine 500"
+      }
+    ],
+    "reviews": [
+      {
+        "level": "CHECK",
+        "contains": "'Heart failure is possible'"
+      },
+      {
+        "level": "INFO",
+        "contains": "Respiratory rate"
+      }
+    ],
+    "no_reviews": [
+      {
+        "level": "HIGH",
+        "contains": "not stated"
+      },
+      {
+        "level": "HIGH",
+        "contains": "Conflicting"
+      },
+      {
+        "level": "HIGH",
+        "contains": "Allergy status unknown"
+      }
+    ]
+  },
+  "_note": "Synthetic, fictional second worked example (hypertension follow-up). Segments are the REAL output of the local speech model on docs/examples/example_hypertension_followup.wav (two text-to-speech voices); roles are unknown, as the model does not identify speakers. No real patient data."
+}

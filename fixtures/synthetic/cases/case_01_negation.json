@@ -1,0 +1,126 @@
+{
+  "id": "case_01_negation",
+  "title": "Negations: symptoms the patient denies",
+  "covers": [
+    "negation",
+    "time kept",
+    "allergy answered"
+  ],
+  "present": [
+    "Patient"
+  ],
+  "segments": [
+    {
+      "id": "s-001",
+      "start": 8,
+      "end": 14,
+      "lang": "en",
+      "original_text": "What brings you in today?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-002",
+      "start": 16,
+      "end": 22,
+      "lang": "en",
+      "original_text": "I have chest pain for two weeks, but no shortness of breath.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-003",
+      "start": 24,
+      "end": 30,
+      "lang": "en",
+      "original_text": "Any palpitations?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-004",
+      "start": 32,
+      "end": 38,
+      "lang": "en",
+      "original_text": "No.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-005",
+      "start": 40,
+      "end": 46,
+      "lang": "en",
+      "original_text": "I have never fainted.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-006",
+      "start": 48,
+      "end": 54,
+      "lang": "en",
+      "original_text": "Any drug allergies?",
+      "english_text": null,
+      "speaker_role": "doctor",
+      "confidence": 0.95
+    },
+    {
+      "id": "s-007",
+      "start": 56,
+      "end": 62,
+      "lang": "en",
+      "original_text": "None.",
+      "english_text": null,
+      "speaker_role": "patient",
+      "confidence": 0.95
+    }
+  ],
+  "expect": {
+    "items": [
+      {
+        "section": "history",
+        "contains": "chest pain for 2 weeks",
+        "polarity": "present",
+        "time": "2 weeks"
+      },
+      {
+        "section": "history",
+        "contains": "no shortness of breath",
+        "polarity": "absent"
+      },
+      {
+        "section": "history",
+        "contains": "no palpitations",
+        "polarity": "absent"
+      },
+      {
+        "section": "history",
+        "contains": "no fainting",
+        "polarity": "absent"
+      },
+      {
+        "section": "meds_allergies",
+        "contains": "no known drug allergies"
+      }
+    ],
+    "no_items": [
+      {
+        "section": "history",
+        "contains": "no chest pain"
+      }
+    ],
+    "no_reviews": [
+      {
+        "level": "HIGH",
+        "contains": "Allergy status unknown"
+      }
+    ]
+  },
+  "_note": "Synthetic, fictional consultation (Blueprint 14 Phase 6). No real patient data. Luganda lines, where present, are illustrative and must be checked by a fluent speaker before use in training material."
+}
