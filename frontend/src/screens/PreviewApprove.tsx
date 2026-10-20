@@ -58,7 +58,7 @@ export function PreviewApprove({ state }: { state: SessionState }) {
         <ul className="plain checklist">
           {lines.map((l) => (
             <li key={l.label} className={l.ok ? 'ok' : 'bad'}>
-              <span aria-hidden="true">{l.ok ? '✅' : '❌'}</span> {l.label}
+              <span aria-hidden="true">{l.ok ? '✓' : '✗'}</span> {l.label}
             </li>
           ))}
         </ul>

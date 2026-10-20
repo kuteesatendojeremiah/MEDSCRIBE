@@ -10,6 +10,7 @@ import {
   type AuthStatus,
   type AuthUser,
 } from '../api/client'
+import { PasswordField } from '../components/common'
 
 const MESSAGES: Record<string, string> = {
   E_BAD_CREDENTIALS: 'Wrong username or password.',
@@ -60,139 +61,134 @@ export function SignIn({
     }
   }
 
+  const longEnough = password.length >= 10
+  const matches = confirm.length > 0 && password === confirm
+  const submitClass = `btn primary block${busy ? ' loading' : ''}`
+
   return (
-    <div className="signin-wrap">
-      <section className="card signin">
-        <h2>{setup ? 'Set up Mediscribe' : 'Sign in'}</h2>
-        {notice && (
-          <div className="notice amber" role="status">
-            {notice}
-          </div>
-        )}
-        {error && (
-          <div className="notice red" role="alert" data-testid="form-error">
-            {error}
-          </div>
-        )}
-        {setup ? (
-          <>
-            <p className="muted">
-              No accounts exist yet. Create the first administrator account. The administrator can
-              then add accounts for the doctors.
-            </p>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                if (password !== confirm) return setError('The two passwords do not match.')
-                void run(() => setupFirstAccount(username, name, password))
-              }}
-            >
-              <label>
-                Your name as printed on notes
-                <input
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  autoComplete="off"
-                  spellCheck={false}
-                  required
-                />
-              </label>
-              <label>
-                Username (lower-case, no spaces)
-                <input
-                  value={username}
-                  onChange={(e) => setUsername(normalizeUsername(e.target.value))}
-                  autoComplete="off"
-                  spellCheck={false}
-                  required
-                />
-              </label>
-              <label>
-                Password (at least 10 characters)
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="new-password"
-                  spellCheck={false}
-                  required
-                />
-              </label>
-              <label>
-                Repeat password
-                <input
-                  type="password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  autoComplete="new-password"
-                  spellCheck={false}
-                  required
-                />
-              </label>
-              <button type="submit" className="btn primary" disabled={busy}>
-                Create administrator account
-              </button>
-            </form>
-          </>
-        ) : (
+    <section className="card auth-card signin">
+      <h2>{setup ? 'Set up Mediscribe' : 'Sign in'}</h2>
+      {notice && (
+        <div className="notice" role="status">
+          {notice}
+        </div>
+      )}
+      {error && (
+        <div className="notice red" role="alert" data-testid="form-error">
+          {error}
+        </div>
+      )}
+      {setup ? (
+        <>
+          <p className="muted">
+            No accounts exist yet. Create the first administrator account; it can then add accounts
+            for the doctors.
+          </p>
           <form
             onSubmit={(e) => {
               e.preventDefault()
-              void run(() => login(username, password))
+              if (password !== confirm) return setError('The two passwords do not match.')
+              void run(() => setupFirstAccount(username, name, password))
             }}
           >
-            <label>
-              Username
+            <div className="field">
+              <label htmlFor="su-name">Your name as printed on notes</label>
               <input
+                id="su-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="off"
+                spellCheck={false}
+                required
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="su-user">Username (lower-case, no spaces)</label>
+              <input
+                id="su-user"
                 value={username}
                 onChange={(e) => setUsername(normalizeUsername(e.target.value))}
-                autoComplete="username"
+                autoComplete="off"
                 spellCheck={false}
                 required
               />
-            </label>
-            <label>
-              Password
-              <input
-                type="password"
+            </div>
+            <div>
+              <PasswordField
+                label="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="current-password"
-                spellCheck={false}
-                required
+                onChange={setPassword}
+                autoComplete="new-password"
               />
-            </label>
-            <button type="submit" className="btn primary" disabled={busy}>
-              Sign in
+              <ul className="rules">
+                <li className={longEnough ? 'ok' : undefined}>At least 10 characters</li>
+              </ul>
+            </div>
+            <div>
+              <PasswordField
+                label="Repeat password"
+                value={confirm}
+                onChange={setConfirm}
+                autoComplete="new-password"
+              />
+              <ul className="rules" aria-live="polite">
+                <li className={matches ? 'ok' : undefined}>Passwords match</li>
+              </ul>
+            </div>
+            <button type="submit" className={submitClass} disabled={busy} aria-busy={busy}>
+              Create administrator account
             </button>
-            <p className="muted small">
-              Accounts are created by your hospital administrator. Forgotten password? Ask them to
-              reset it.
-            </p>
           </form>
-        )}
-        {status?.demo_login && (
-          <div className="demo-signin">
-            <p className="muted small">Testing only (turned on by the server):</p>
-            <button
-              type="button"
-              className="btn outline small"
-              disabled={busy}
-              onClick={() => void run(() => demoLogin('Dr. A. Nankya'))}
-            >
-              Continue with demo account
-            </button>
+        </>
+      ) : (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            void run(() => login(username, password))
+          }}
+        >
+          <div className="field">
+            <label htmlFor="si-user">Username</label>
+            <input
+              id="si-user"
+              value={username}
+              onChange={(e) => setUsername(normalizeUsername(e.target.value))}
+              autoComplete="username"
+              spellCheck={false}
+              required
+            />
           </div>
-        )}
-      </section>
-      <aside className="card muted small signin-note">
-        <strong>About signing in</strong>
-        <p>
-          Your account identifies you on the notes you approve. Nothing about patients is linked to
-          your account, and nothing clinical is stored by Mediscribe. You are signed out after 15
-          minutes of inactivity.
-        </p>
-      </aside>
-    </div>
+          <PasswordField
+            label="Password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="current-password"
+          />
+          <button type="submit" className={submitClass} disabled={busy} aria-busy={busy}>
+            Sign in
+          </button>
+        </form>
+      )}
+      {status?.demo_login && (
+        <div className="demo-signin">
+          <p className="muted small">Testing only (turned on by the server):</p>
+          <button
+            type="button"
+            className="btn small"
+            disabled={busy}
+            onClick={() => void run(() => demoLogin('Dr. A. Nankya'))}
+          >
+            Continue with demo account
+          </button>
+        </div>
+      )}
+      <p className="auth-note">
+        {setup
+          ? 'Your account only identifies you on the notes you approve. '
+          : 'Accounts are created by your hospital administrator; ask them to reset a forgotten password. '}
+        Nothing clinical is stored by Mediscribe, and you are signed out after 15 minutes of
+        inactivity.
+      </p>
+    </section>
   )
 }

@@ -73,11 +73,7 @@ export function StepInfo({
   onBack: () => void
 }) {
   const badge =
-    data.status === 'done'
-      ? '✓ Done'
-      : data.status === 'locked'
-        ? '🔒 Not available yet'
-        : 'Current'
+    data.status === 'done' ? '✓ Done' : data.status === 'locked' ? 'Not available yet' : 'Current'
   return (
     <section className="card step-info" data-testid={`step-info-${data.step}`}>
       <p className="muted small">Step {data.step} of 5 · viewing only</p>
@@ -107,7 +103,7 @@ export function StepInfo({
           <ul className="plain checklist">
             {data.requirements.map((r) => (
               <li key={r.label} className={r.ok ? 'ok' : 'bad'}>
-                <span aria-hidden="true">{r.ok ? '✅' : '❌'}</span> {r.label}
+                <span aria-hidden="true">{r.ok ? '✓' : '✗'}</span> {r.label}
               </li>
             ))}
           </ul>

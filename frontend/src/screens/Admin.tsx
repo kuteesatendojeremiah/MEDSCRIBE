@@ -1,5 +1,6 @@
 // Administrator screen: manage doctor accounts (identity only, no clinical content).
 import { useCallback, useEffect, useState } from 'react'
+import { PasswordField } from '../components/common'
 import { normalizeUsername } from './SignIn'
 import {
   ApiFailure,
@@ -155,18 +156,13 @@ export function Admin({ me, onClose }: { me: AuthUser; onClose: () => void }) {
                 required
               />
             </label>
-            <label>
-              Temporary password (at least 10 characters)
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
-                spellCheck={false}
-                required
-              />
-            </label>
-            <button type="submit" className="btn primary">
+            <PasswordField
+              label="Temporary password (at least 10 characters)"
+              value={password}
+              onChange={setPassword}
+              autoComplete="new-password"
+            />
+            <button type="submit" className="btn primary" style={{ marginTop: 16 }}>
               Add doctor
             </button>
           </form>

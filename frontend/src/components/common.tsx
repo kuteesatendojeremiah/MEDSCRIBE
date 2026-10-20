@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { stepIndex } from '../session/selectors'
 import { msUntilTimeout, formatClock } from '../session/timers'
 import { useNow } from '../session/hooks'
@@ -29,6 +29,74 @@ export function mmss(seconds: number): string {
   return `${String(Math.floor(whole / 60)).padStart(2, '0')}:${String(whole % 60).padStart(2, '0')}`
 }
 
+function BrandMark() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
+      <path
+        d="M6 2.5h9.5L21 8v15a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 5 23V4a1.5 1.5 0 0 1 1-1.5Z"
+        fill="#fff"
+      />
+      <path d="M15.5 2.5V8H21" stroke="#9db9d6" strokeWidth="1.2" />
+      <path
+        d="M8 16v-1M10.5 18v-5M13 20v-9M15.5 18v-5M18 16v-1"
+        stroke="#1f4e79"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+/** Live countdown to the inactivity timeout (§6.2); same values as the session timers. */
+function SessionClock({ lastActivityAt }: { lastActivityAt: number }) {
+  const now = useNow()
+  const left = msUntilTimeout(lastActivityAt, now)
+  const level = left < 60_000 ? 'critical' : left < 120_000 ? 'warn' : 'ok'
+  // Announce only when the level changes, not every second.
+  const spoken =
+    level === 'critical'
+      ? 'Session expires in less than one minute'
+      : level === 'warn'
+        ? 'Session expires in less than two minutes'
+        : ''
+  return (
+    <>
+      <span
+        className={`chip-light session-clock${level === 'ok' ? '' : ` ${level}`}`}
+        data-testid="session-clock"
+        title="Time left before the session ends for inactivity"
+      >
+        Session {formatClock(left)}
+      </span>
+      <span className="sr-only" role="status" aria-live="polite">
+        {spoken}
+      </span>
+    </>
+  )
+}
+
+function CheckIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        d="m3.5 8.5 3 3 6-7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function demoStrip(info: ServerInfo | null): string {
+  const engine =
+    info?.speech === 'local'
+      ? `local speech model (${info.speech_model}) · audio stays on this computer`
+      : 'mock transcription (any audio returns the demo consultation)'
+  return `Demo mode · fictional patient · ${engine}`
+}
+
 export function Shell({
   state,
   user = null,
@@ -57,26 +125,16 @@ export function Shell({
   return (
     <>
       <header className="topbar">
-        <span className="brand">MEDISCRIBE</span>
-        {inSession && <span className="chip-light">Session {state.setup.tempRef} · temporary</span>}
-        <span className="spacer" />
-        {info && (
-          <span
-            className={info.speech === 'local' ? 'engine-badge local' : 'engine-badge mock'}
-            data-testid="engine-badge"
-            title={
-              info.speech === 'local'
-                ? 'Audio is transcribed on this computer. Nothing is sent over the internet.'
-                : 'Transcription is simulated: any audio returns the same demonstration consultation.'
-            }
-          >
-            {info.speech === 'local'
-              ? `Local speech model (${info.speech_model}) · audio stays on this computer`
-              : 'MOCK transcription · any audio returns the demo consultation'}
-          </span>
-        )}
+        <span className="brand">
+          <BrandMark />
+          Mediscribe
+        </span>
+        {inSession && <span className="chip-light">Ref {state.setup.tempRef} · temporary</span>}
         {draftLabel && <span className="chip-light">{draftLabel}</span>}
-        <span className="demo-badge">DEMONSTRATION · FICTIONAL PATIENT</span>
+        <span className="spacer" />
+        {user && inSession && state.lastActivityAt !== null && (
+          <SessionClock lastActivityAt={state.lastActivityAt} />
+        )}
         {user && (
           <span className="user-menu" data-testid="user-menu">
             <span className="chip-light">
@@ -101,32 +159,113 @@ export function Shell({
           </span>
         )}
       </header>
+      <div className="demo-strip" role="note" data-testid="engine-badge">
+        {demoStrip(info)}
+      </div>
       {showSteps && (
         <nav className="stepper" aria-label="Progress">
-          {([1, 2, 3, 4, 5] as Step[]).map((n) => {
-            const cls =
-              'step' +
-              (n === step ? ' current' : n < step ? ' done' : '') +
-              (viewStep === n ? ' viewing' : '')
-            return (
-              <button
-                key={n}
-                type="button"
-                className={cls}
-                aria-current={n === step ? 'step' : undefined}
-                aria-pressed={viewStep === n}
-                data-testid={`step-${n}`}
-                onClick={() => onStep?.(n)}
-              >
-                {n < step ? '✓ ' : `${n} `}
-                {STEP_TITLES[n]}
-              </button>
-            )
-          })}
+          <ol>
+            {([1, 2, 3, 4, 5] as Step[]).map((n) => {
+              const status = n === step ? ' current' : n < step ? ' done' : ''
+              const cls = 'step' + status + (viewStep === n ? ' viewing' : '')
+              return (
+                <li key={n} className={n < step ? 'done' : undefined}>
+                  <button
+                    type="button"
+                    className={cls}
+                    aria-current={n === step ? 'step' : undefined}
+                    aria-pressed={viewStep === n}
+                    data-testid={`step-${n}`}
+                    onClick={() => onStep?.(n)}
+                  >
+                    <span className="step-dot" aria-hidden="true">
+                      {n < step ? <CheckIcon /> : n}
+                    </span>
+                    <span className="step-label">
+                      <span className="sr-only">
+                        Step {n}
+                        {n < step ? ' (completed)' : ''}:{' '}
+                      </span>
+                      {STEP_TITLES[n]}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ol>
+          <div className="stepper-compact" aria-hidden="true">
+            Step {step} of 5 · <b>{STEP_TITLES[step as Step]}</b>
+            <div className="progress">
+              <span style={{ width: `${(step / 5) * 100}%` }} />
+            </div>
+          </div>
         </nav>
       )}
       <main className="content">{children}</main>
     </>
+  )
+}
+
+export function InfoIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+      <circle cx="9" cy="9" r="7.5" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M9 8.2v4.3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="9" cy="5.6" r="1" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** A password input with a show/hide toggle. The label text is the field's accessible name. */
+export function PasswordField({
+  label,
+  value,
+  onChange,
+  autoComplete,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  autoComplete: 'new-password' | 'current-password'
+}) {
+  const id = useId()
+  const [shown, setShown] = useState(false)
+  return (
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
+      <div className="input-wrap">
+        {autoComplete === 'new-password' ? (
+          <input
+            id={id}
+            type={shown ? 'text' : 'password'}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            autoComplete="new-password"
+            spellCheck={false}
+            required
+          />
+        ) : (
+          <input
+            id={id}
+            type={shown ? 'text' : 'password'}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            autoComplete="current-password"
+            spellCheck={false}
+            required
+          />
+        )}
+        <button
+          type="button"
+          className="input-toggle"
+          aria-pressed={shown}
+          aria-label={shown ? 'Hide characters' : 'Show characters'}
+          onClick={() => setShown((v) => !v)}
+        >
+          {shown ? 'Hide' : 'Show'}
+        </button>
+      </div>
+    </div>
   )
 }
 
