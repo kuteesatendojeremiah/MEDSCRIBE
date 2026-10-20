@@ -60,3 +60,15 @@ render refused on hash mismatch; token revocation; upload and rate limits; load 
 
 NOT verified here: the Docker image build, swap/core-dump settings on a real Linux host, proxy and load-balancer logging configuration,
 SSO. Each is an item for the security lead before any pilot (§11.1).
+
+## Render free tier (demo, synthetic data only)
+
+`render.yaml` at the repo root is a Render Blueprint for a free-tier demo. In Render: **New > Blueprint**,
+connect the GitHub repo, and apply. Render builds the `Dockerfile`, generates `TOKEN_SECRET`, and serves the app
+over HTTPS at `https://<name>.onrender.com`.
+
+- The free instance sleeps after about 15 minutes idle; the first request afterwards takes 30 to 60 seconds.
+- The disk is ephemeral. Doctor accounts (`ACCOUNTS_FILE=/tmp/accounts.json`) are lost on restart or spin-down, so
+  repeat the first-run setup. No clinical content is ever stored.
+- The mock provider is used (`PROVIDER_GATE_APPROVED=false`); the local speech model is not in the image.
+- Render does not give the host-level controls in the table above, so this is never for real patient data.

@@ -1,0 +1,28 @@
+# Render Blueprint: free-tier demo deployment (synthetic data only, Blueprint §1.1, §11.1).
+# See docs/deploy.md. Not suitable for real patients: Render free gives no control over swap,
+# core dumps or proxy logging (§10.3).
+services:
+  - type: web
+    name: mediscribe
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: TOKEN_SECRET
+        generateValue: true
+      - key: PROVIDER
+        value: mock
+      - key: PROVIDER_GATE_APPROVED
+        value: "false"
+      - key: DEV_AUTH_ENABLED
+        value: "false"
+      - key: SYNTHETIC_ONLY
+        value: "true"
+      - key: ENVIRONMENT
+        value: demo
+      # Doctor accounts only (no clinical content). The free tier disk is ephemeral, so accounts reset
+      # when the service restarts or spins down; run first-run setup again after a wake-up.
+      - key: ACCOUNTS_FILE
+        value: /tmp/accounts.json
