@@ -14,6 +14,9 @@ export function PreviewApprove({ state }: { state: SessionState }) {
   const note = state.note
   const version = note ? shortHash(noteHash(note)) : ''
   const ok = canApprove(state)
+  const attention = (note?.review_items ?? []).filter(
+    (r) => r.level === 'HIGH' && (r.status === 'open' || !state.openedReviewIds.includes(r.id)),
+  )
   const [doc, setDoc] = useState<PreviewDocument | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [attempt, setAttempt] = useState(0)
@@ -54,7 +57,12 @@ export function PreviewApprove({ state }: { state: SessionState }) {
   return (
     <div className="grid preview-grid">
       <section className="card">
-        <h2>Approval checklist</h2>
+        <div className="panel-head">
+          <h2>Approval checklist</h2>
+          <span className="status-pill draft" data-testid="preview-status">
+            DRAFT · not approved
+          </span>
+        </div>
         <ul className="plain checklist">
           {lines.map((l) => (
             <li key={l.label} className={l.ok ? 'ok' : 'bad'}>
@@ -93,7 +101,27 @@ export function PreviewApprove({ state }: { state: SessionState }) {
             ✓ Approve this version &amp; download
           </button>
         </div>
-        {!ok && <p className="muted small">Resolve or mark unverified every HIGH item first.</p>}
+        {!ok && (
+          <div className="notice amber" role="alert" data-testid="needs-attention">
+            <strong>Approval needs your attention:</strong>
+            <ul className="plain">
+              {attention.map((r) => (
+                <li key={r.id}>
+                  {r.reason}{' '}
+                  <span className="muted small">
+                    {state.openedReviewIds.includes(r.id)
+                      ? '(enter the value or mark it unverified)'
+                      : '(open it first)'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="small">
+              Required items can be corrected in the note or marked unverified; an unverified item
+              is printed in red on the document. Advisory warnings never block approval.
+            </p>
+          </div>
+        )}
         {error && (
           <div className="notice amber" role="alert">
             The preview could not be rendered (<code>{error}</code>). Your draft is kept.{' '}

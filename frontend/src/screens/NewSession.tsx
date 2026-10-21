@@ -80,6 +80,16 @@ export function NewSession({
           </div>
         )}
         <h2>New temporary consultation</h2>
+        <p className="helper" data-testid="ns-intro">
+          Set up the consultation, confirm consent, then record. The note is drafted for you to
+          review, correct and approve before anything can be downloaded.
+        </p>
+        <p className="selected-summary" data-testid="ns-selected" aria-live="polite">
+          <span className="badge badge-ok">
+            {setup.template === 'cardiology' ? 'Cardiology template' : setup.template}
+          </span>{' '}
+          <span className="badge badge-ok">{setup.languages}</span>
+        </p>
 
         <div className="form-section first">
           <h3>Consultation</h3>
@@ -129,7 +139,9 @@ export function NewSession({
           </p>
           <div className="form-grid">
             <div className="field span-2">
-              <label htmlFor="ns-name">Full name</label>
+              <label htmlFor="ns-name">
+                Full name <span className="opt">optional</span>
+              </label>
               <input
                 id="ns-name"
                 value={setup.patient.name}
@@ -140,7 +152,9 @@ export function NewSession({
               />
             </div>
             <div className="field">
-              <label htmlFor="ns-age">Age</label>
+              <label htmlFor="ns-age">
+                Age <span className="opt">optional</span>
+              </label>
               <input
                 id="ns-age"
                 value={setup.patient.age}
@@ -152,7 +166,9 @@ export function NewSession({
               />
             </div>
             <div className="field">
-              <label htmlFor="ns-sex">Sex</label>
+              <label htmlFor="ns-sex">
+                Sex <span className="opt">optional</span>
+              </label>
               <select
                 id="ns-sex"
                 value={setup.patient.sex}
@@ -165,7 +181,9 @@ export function NewSession({
               </select>
             </div>
             <div className="field">
-              <label htmlFor="ns-file">File / OPD number</label>
+              <label htmlFor="ns-file">
+                File / OPD number <span className="opt">optional</span>
+              </label>
               <input
                 id="ns-file"
                 value={setup.patient.fileNumber}
@@ -176,7 +194,9 @@ export function NewSession({
               />
             </div>
             <div className="field">
-              <label htmlFor="ns-res">Residence (village / district)</label>
+              <label htmlFor="ns-res">
+                Residence (village / district) <span className="opt">optional</span>
+              </label>
               <input
                 id="ns-res"
                 value={setup.patient.residence}
@@ -225,7 +245,9 @@ export function NewSession({
         </div>
 
         <div className="form-section">
-          <h3>Consent</h3>
+          <h3>
+            Consent <span className="opt req">required</span>
+          </h3>
           <label className="consent">
             <input
               type="checkbox"
@@ -267,10 +289,16 @@ export function NewSession({
             Nothing is saved. Download the approved note before closing this tab.
           </span>
         </div>
-        <p className="helper">
-          Next: record the consultation, or upload a synthetic audio file. Sessions end after{' '}
-          {TIMEOUT_MS / 60000} minutes of inactivity (warning at {WARN_MS / 60000}).
-        </p>
+        <div className="helper" data-testid="ns-next">
+          <strong>What happens next</strong>
+          <ol>
+            <li>Record the consultation, or upload a synthetic audio file.</li>
+            <li>Review the transcript and the draft note, and fix anything flagged.</li>
+            <li>Approve the note, then download it as Word or PDF.</li>
+          </ol>
+          Sessions end after {TIMEOUT_MS / 60000} minutes of inactivity (warning at{' '}
+          {WARN_MS / 60000}).
+        </div>
       </aside>
     </div>
   )

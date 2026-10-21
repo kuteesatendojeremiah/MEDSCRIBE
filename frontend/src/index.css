@@ -1613,3 +1613,27 @@ a:focus-visible {
     padding: var(--space-2) var(--space-4);
   }
 }
+
+/* ---- Form hints ---- */
+.opt {
+  margin-left: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--grey-500);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.opt.req {
+  color: var(--red-800);
+}
+.selected-summary {
+  margin: var(--space-2) 0 var(--space-4);
+}
+.approved-preview {
+  margin: var(--space-4) 0;
+  text-align: left;
+}
+.approved-preview summary {
+  cursor: pointer;
+  font-weight: 600;
+}

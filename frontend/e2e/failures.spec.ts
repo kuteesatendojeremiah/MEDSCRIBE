@@ -69,3 +69,19 @@ test('a cleared session cannot be reached with the browser back button', async (
   await page.goBack().catch(() => undefined)
   await expect(page.getByRole('heading', { name: 'Draft note' })).toHaveCount(0)
 })
+
+test('Discard recording asks first, then ends the session and releases the microphone', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await fillNewSession(page)
+  await startSession(page)
+  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  page.once('dialog', (d) => d.dismiss())
+  await page.getByTestId('discard-recording').click()
+  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible() // still recording
+  page.once('dialog', (d) => d.accept())
+  await page.getByTestId('discard-recording').click()
+  await expect(page.getByText(/RECORDING/)).toHaveCount(0)
+  await expectNoBrowserStorage(page)
+})

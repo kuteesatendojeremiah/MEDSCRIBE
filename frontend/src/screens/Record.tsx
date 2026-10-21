@@ -116,6 +116,23 @@ export function Record({ state }: { state: SessionState }) {
               </button>
             </div>
             <div className="row center">
+              <button
+                type="button"
+                className="link"
+                data-testid="discard-recording"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      'Discard this recording? The audio is removed from this tab and the session ends.',
+                    )
+                  )
+                    sessionStore.dispatch({ type: 'END_SESSION' })
+                }}
+              >
+                Discard recording
+              </button>
+            </div>
+            <div className="row center">
               <label className="btn small outline upload">
                 Upload synthetic audio file instead
                 <input
