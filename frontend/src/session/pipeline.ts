@@ -5,7 +5,19 @@ import { ApiFailure, extract, transcribe } from '../api/client'
 import { buildHeader } from './header'
 import type { SessionStore } from './store'
 
-export async function runPipeline(store: SessionStore): Promise<void> {
+// One run at a time: a double click, a React re-mount or a second Retry joins the run in progress
+// instead of sending the audio again. Holds no clinical content (just the promise).
+let inFlight: Promise<void> | null = null
+
+export function runPipeline(store: SessionStore): Promise<void> {
+  if (inFlight) return inFlight
+  inFlight = run(store).finally(() => {
+    inFlight = null
+  })
+  return inFlight
+}
+
+async function run(store: SessionStore): Promise<void> {
   const s0 = store.getState()
   try {
     let transcript = s0.transcript

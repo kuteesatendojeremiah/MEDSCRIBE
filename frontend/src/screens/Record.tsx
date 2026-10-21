@@ -7,6 +7,7 @@ import { InactivityNote } from '../components/common'
 import { useNow } from '../session/hooks'
 import { runPipeline } from '../session/pipeline'
 import { sessionStore } from '../session/store'
+import { processingStage } from '../session/selectors'
 import { formatClock } from '../session/timers'
 import type { SessionState } from '../session/types'
 
@@ -18,7 +19,7 @@ export function Record({ state }: { state: SessionState }) {
   const { phase, paused } = state
   const recorder = useRef<AudioRecorder | null>(null)
   const [micReady, setMicReady] = useState(false)
-  const [micError, setMicError] = useState(false)
+  const [micError, setMicError] = useState<'denied' | 'unavailable' | null>(null)
 
   // Start the microphone when capture begins; always release it on leaving the screen.
   useEffect(() => {
@@ -29,7 +30,13 @@ export function Record({ state }: { state: SessionState }) {
     rec
       .start()
       .then(() => live && setMicReady(true))
-      .catch(() => live && setMicError(true))
+      .catch(
+        (e) =>
+          live &&
+          setMicError(
+            e instanceof DOMException && e.name === 'NotAllowedError' ? 'denied' : 'unavailable',
+          ),
+      )
     return () => {
       live = false
       rec.release()
@@ -122,7 +129,9 @@ export function Record({ state }: { state: SessionState }) {
             </div>
             {micError && (
               <p className="muted small" role="alert">
-                The microphone could not be opened. Upload a synthetic audio file instead.
+                {micError === 'denied'
+                  ? 'Microphone permission was denied. Allow microphone access for this site in your browser settings and start again, or upload a synthetic audio file instead.'
+                  : 'The microphone could not be opened. Check that it is connected and not in use, or upload a synthetic audio file instead.'}
               </p>
             )}
           </>
@@ -130,8 +139,17 @@ export function Record({ state }: { state: SessionState }) {
         {phase === 'processing' && (
           <div role="status" className="center-col">
             <div className="spinner" />
-            <h2>Processing…</h2>
-            <p className="muted">Transcribing, translating and drafting the note.</p>
+            <h2>
+              {processingStage(state) === 'transcribing' ? 'Transcribing…' : 'Drafting the note…'}
+            </h2>
+            <ol className="muted" data-testid="processing-steps">
+              <li aria-current={processingStage(state) === 'transcribing' ? 'step' : undefined}>
+                {processingStage(state) === 'transcribing' ? '▸' : '✔'} Transcribing and translating
+              </li>
+              <li aria-current={processingStage(state) === 'generating' ? 'step' : undefined}>
+                {processingStage(state) === 'generating' ? '▸' : '○'} Drafting the note
+              </li>
+            </ol>
           </div>
         )}
         {phase === 'recoverable_error' && (

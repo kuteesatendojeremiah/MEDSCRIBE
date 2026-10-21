@@ -28,6 +28,10 @@ export function canApprove(s: SessionState): boolean {
 /** FR-14: an active session that has not been exported would lose work on unload. */
 export const hasUnexportedDraft = (s: SessionState): boolean => isActive(s.phase) && !s.exported
 
+/** While processing, which part is running: speech first, then the note (Blueprint §6.1 Processing). */
+export const processingStage = (s: SessionState): 'transcribing' | 'generating' =>
+  s.transcript === null ? 'transcribing' : 'generating'
+
 export function stepIndex(phase: Phase): 1 | 2 | 3 | 4 | 5 {
   switch (phase) {
     case 'capture':

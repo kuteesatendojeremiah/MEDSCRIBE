@@ -1,5 +1,6 @@
 import { useId, useState, type ReactNode } from 'react'
 import { stepIndex } from '../session/selectors'
+import { sessionStore } from '../session/store'
 import { msUntilTimeout, formatClock } from '../session/timers'
 import { useNow } from '../session/hooks'
 import type { AuthUser, ServerInfo } from '../api/client'
@@ -149,6 +150,27 @@ export function Shell({
                 title={inSession ? 'End the current session first' : 'Manage doctor accounts'}
               >
                 Doctors
+              </button>
+            )}
+            {inSession && (
+              <button
+                type="button"
+                className="topbar-btn"
+                data-testid="clear-session"
+                onClick={() => {
+                  const risk =
+                    !state.exported && state.phase !== 'capture'
+                      ? ' The unsaved draft will be lost.'
+                      : ''
+                  if (
+                    window.confirm(
+                      `Clear this session? Audio, transcript and note are removed from this tab.${risk}`,
+                    )
+                  )
+                    sessionStore.dispatch({ type: 'END_SESSION' })
+                }}
+              >
+                Clear session
               </button>
             )}
             {onSignOut && (

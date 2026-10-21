@@ -34,7 +34,18 @@ export function saveBlob(blob: Blob, name: string) {
 }
 
 /** Render and save the approved version. Recoverable failures keep the approved version (§12.2). */
-export async function downloadApproved(store: SessionStore): Promise<DownloadResult> {
+let rendering: Promise<DownloadResult> | null = null
+
+/** Duplicate clicks join the render in progress, so one approval never produces two exports at once. */
+export function downloadApproved(store: SessionStore): Promise<DownloadResult> {
+  if (rendering) return rendering
+  rendering = renderAndSave(store).finally(() => {
+    rendering = null
+  })
+  return rendering
+}
+
+async function renderAndSave(store: SessionStore): Promise<DownloadResult> {
   const s = store.getState()
   if (s.phase !== 'approved' || !s.note || !s.approval) return { ok: false, code: 'E_NOT_APPROVED' }
   try {
