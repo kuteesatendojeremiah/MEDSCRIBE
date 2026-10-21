@@ -76,10 +76,14 @@ test('items can be moved and deleted; deleting never removes a HIGH flag (§4.4)
   page,
 }) => {
   await goToReview(page)
+  await page.getByLabel('More actions for f-001').click()
   await page.getByLabel('Move f-001 to section').selectOption('exam')
   await expect(page.getByTestId('item-f-001')).toContainText('edited by clinician')
   const bisoprolol = page.getByTestId('item-f-015')
-  await bisoprolol.getByRole('button', { name: /Delete f-015/ }).click()
+  await bisoprolol.getByLabel('More actions for f-015').click()
+  await bisoprolol.getByRole('button', { name: 'Delete f-015' }).click()
+  await expect(page.getByTestId('item-f-015')).toHaveCount(1) // nothing is removed until confirmed
+  await bisoprolol.getByRole('button', { name: 'Confirm delete f-015' }).click()
   await expect(page.getByTestId('item-f-015')).toHaveCount(0)
   await expect(page.getByRole('button', { name: /HIGH review item: Bisoprolol/i })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Preview/ })).toBeDisabled()

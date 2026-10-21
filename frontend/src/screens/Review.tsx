@@ -19,6 +19,9 @@ export const SECTION_TITLES: Array<[Section, string]> = [
   ['plan', 'PLAN'],
 ]
 
+/** Below this confidence a speaker label is shown as uncertain (never as a confirmed identity). */
+export const UNCERTAIN_BELOW = 0.6
+
 /** FR-18: search the current session's transcript (in memory only). */
 export function searchSegments(segments: Segment[], query: string): Segment[] {
   const q = query.trim().toLowerCase()
@@ -37,6 +40,7 @@ function SegmentRow({ t, cls, selected }: { t: Segment; cls: string; selected: b
     if (selected) ref.current?.scrollIntoView?.({ block: 'nearest' })
   }, [selected])
   const translated = t.english_text !== null
+  const uncertain = t.speaker_role === 'unknown' || t.confidence < UNCERTAIN_BELOW
   return (
     <div
       ref={ref}
@@ -50,6 +54,11 @@ function SegmentRow({ t, cls, selected }: { t: Segment; cls: string; selected: b
         label={`Speaker of segment ${t.id}`}
         onChange={(role) => sessionStore.dispatch({ type: 'REASSIGN_ROLE', segmentId: t.id, role })}
       />{' '}
+      {uncertain && (
+        <span className="badge badge-warn" data-testid={`uncertain-${t.id}`}>
+          Speaker uncertain – check the audio
+        </span>
+      )}{' '}
       {t.voice != null && (
         <span className="voice-tag" title="Grouped by sound; check it against the audio">
           voice {t.voice}
@@ -209,9 +218,9 @@ function Transcript({ state, highlightId }: { state: SessionState; highlightId: 
       .map((r) => state.note?.items.find((i) => i.id === r.item_id)?.source.segment_id),
   )
   return (
-    <section className="card">
+    <section className="card transcript-panel" aria-label="Transcript">
       <h2>
-        Transcript <small>(click a label to reassign)</small>
+        Transcript <small>(use a speaker label to reassign)</small>
       </h2>
       {(state.transcript ?? []).length === 0 && (
         <p className="muted">No transcript. Type findings directly into the note.</p>
@@ -262,6 +271,83 @@ function tag(item: NoteItem, state: SessionState): string {
   const role = item.source.speaker_role
   const who = role === 'relative' ? 'reported by relative' : role ? ROLE_LABEL[role] : ''
   return seg ? `${mmss(seg.start)} ${who}` : who
+}
+
+function ItemMenu({ item }: { item: NoteItem }) {
+  const ref = useRef<HTMLDetailsElement>(null)
+  const [confirming, setConfirming] = useState(false)
+  const close = () => {
+    setConfirming(false)
+    if (ref.current) ref.current.open = false
+  }
+  return (
+    <details
+      ref={ref}
+      className="menu"
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') {
+          close()
+          ref.current?.querySelector('summary')?.focus()
+        }
+      }}
+    >
+      <summary className="btn small outline" aria-label={`More actions for ${item.id}`}>
+        More
+      </summary>
+      <div className="menu-panel">
+        <label>
+          Move to section
+          <select
+            aria-label={`Move ${item.id} to section`}
+            value={item.section}
+            onChange={(e) => {
+              sessionStore.dispatch({
+                type: 'MOVE_NOTE_ITEM',
+                id: item.id,
+                section: e.target.value as Section,
+              })
+              close()
+            }}
+          >
+            {SECTION_TITLES.map(([s, title]) => (
+              <option key={s} value={s}>
+                {title.toLowerCase()}
+              </option>
+            ))}
+          </select>
+        </label>
+        {confirming ? (
+          <div role="alert" className="menu-confirm">
+            <p>Delete this finding from the note? The transcript is not changed.</p>
+            <button
+              type="button"
+              className="btn small danger"
+              aria-label={`Confirm delete ${item.id}`}
+              onClick={() => sessionStore.dispatch({ type: 'DELETE_NOTE_ITEM', id: item.id })}
+            >
+              Confirm delete
+            </button>{' '}
+            <button
+              type="button"
+              className="btn small outline"
+              onClick={() => setConfirming(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="btn small outline danger-text"
+            aria-label={`Delete ${item.id}`}
+            onClick={() => setConfirming(true)}
+          >
+            Delete…
+          </button>
+        )}
+      </div>
+    </details>
+  )
 }
 
 function ItemRow({
@@ -324,7 +410,7 @@ function ItemRow({
           )}{' '}
           <button
             type="button"
-            className="link tiny"
+            className="btn small outline"
             onClick={() => {
               setText(item.text)
               setEditing(true)
@@ -332,32 +418,7 @@ function ItemRow({
           >
             Edit
           </button>{' '}
-          <select
-            className="move"
-            aria-label={`Move ${item.id} to section`}
-            value={item.section}
-            onChange={(e) =>
-              sessionStore.dispatch({
-                type: 'MOVE_NOTE_ITEM',
-                id: item.id,
-                section: e.target.value as Section,
-              })
-            }
-          >
-            {SECTION_TITLES.map(([s, title]) => (
-              <option key={s} value={s}>
-                {title.toLowerCase()}
-              </option>
-            ))}
-          </select>{' '}
-          <button
-            type="button"
-            className="link tiny danger-link"
-            aria-label={`Delete ${item.id}`}
-            onClick={() => sessionStore.dispatch({ type: 'DELETE_NOTE_ITEM', id: item.id })}
-          >
-            Delete
-          </button>
+          <ItemMenu item={item} />
         </>
       )}
     </li>
@@ -414,8 +475,13 @@ function Draft({
   const note = state.note
   if (!note) return null
   return (
-    <section className="card">
-      <h2>Draft note</h2>
+    <section className="card note-panel" aria-label="Clinical note">
+      <div className="panel-head">
+        <h2>Draft note</h2>
+        <span className="status-pill draft" data-testid="draft-pill">
+          DRAFT · not approved
+        </span>
+      </div>
       {SECTION_TITLES.map(([sec, title]) => {
         const items = note.items.filter((i) => i.section === sec)
         const missing = sec === 'vitals' ? missingVitals(note) : []
@@ -515,13 +581,46 @@ function PatientBanner({ state }: { state: SessionState }) {
 
 export function Review({ state }: { state: SessionState }) {
   const [highlightId, setHighlightId] = useState<string | null>(null)
+  const [sideOpen, setSideOpen] = useState(true)
+  const [sideWidth, setSideWidth] = useState(420) // px, tab memory only
   return (
     <>
       <PatientBanner state={state} />
-      <div className="grid three">
-        <Transcript state={state} highlightId={highlightId} />
-        <Draft state={state} highlightId={highlightId} onHighlight={setHighlightId} />
-        <ReviewItemsPanel state={state} />
+      <div
+        className={`review-workspace${sideOpen ? '' : ' side-collapsed'}`}
+        style={{ ['--side-w' as string]: `${sideWidth}px` }}
+      >
+        <div className="review-main">
+          <ReviewItemsPanel state={state} onLocate={setHighlightId} />
+          <Draft state={state} highlightId={highlightId} onHighlight={setHighlightId} />
+        </div>
+        <aside className="review-side">
+          <div className="side-controls">
+            <button
+              type="button"
+              className="btn small outline"
+              aria-expanded={sideOpen}
+              onClick={() => setSideOpen(!sideOpen)}
+            >
+              {sideOpen ? 'Collapse transcript' : 'Show transcript'}
+            </button>
+            {sideOpen && (
+              <label className="side-width">
+                Panel width
+                <input
+                  type="range"
+                  min={320}
+                  max={640}
+                  step={20}
+                  value={sideWidth}
+                  onChange={(e) => setSideWidth(Number(e.target.value))}
+                  aria-label="Transcript panel width"
+                />
+              </label>
+            )}
+          </div>
+          {sideOpen && <Transcript state={state} highlightId={highlightId} />}
+        </aside>
       </div>
     </>
   )

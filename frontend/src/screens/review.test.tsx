@@ -34,7 +34,7 @@ describe('free-text inputs keep browser spelling services off (§10.2)', () => {
       const src = readFileSync(file, 'utf8')
       for (const m of src.matchAll(/<input\b[\s\S]*?\/>/g)) {
         const tag = m[0]
-        if (/type="(checkbox|file)"/.test(tag)) continue
+        if (/type="(checkbox|file|range)"/.test(tag)) continue
         // Sign-in fields may use the standard credential tokens so password managers work.
         const autocompleteOk = /autoComplete="(off|username|current-password|new-password)"/.test(
           tag,

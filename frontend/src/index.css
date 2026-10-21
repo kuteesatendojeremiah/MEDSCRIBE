@@ -121,6 +121,7 @@ a {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  flex-wrap: wrap;
   min-height: var(--header-h);
   background: var(--navy);
   color: #fff;
@@ -647,7 +648,8 @@ input[type='checkbox'] {
 }
 
 .btn:focus-visible {
-  outline: none;
+  outline: 3px solid var(--navy-500);
+  outline-offset: 2px;
   box-shadow: var(--focus-ring);
 }
 
@@ -1277,6 +1279,7 @@ ul.items {
 
 .user-menu {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -1430,4 +1433,183 @@ select.role-select {
 .patient-banner {
   margin-bottom: 14px;
   padding: 10px 16px;
+}
+
+/* ---- Review workspace: the note is the primary column, the transcript sits beside it ---- */
+.review-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 1fr);
+  gap: var(--space-6);
+  align-items: start;
+}
+.review-main {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+.review-side {
+  position: sticky;
+  top: var(--space-4);
+  min-width: 0;
+}
+.transcript-panel {
+  max-height: calc(100vh - 2 * var(--space-6) - var(--header-h));
+  overflow-y: auto;
+}
+.review-main .card,
+.review-side .card {
+  margin: 0;
+}
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+.panel-head h2 {
+  margin: 0;
+  margin-right: auto;
+}
+.dock-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.5;
+  border: 1px solid transparent;
+}
+.badge-req {
+  background: var(--red-50);
+  color: var(--red-800);
+  border-color: var(--red-600);
+}
+.badge-adv {
+  background: var(--amber-50);
+  color: var(--amber-800);
+  border-color: var(--amber-200);
+}
+.badge-ok {
+  background: var(--green-50);
+  color: var(--green-800);
+  border-color: var(--green-600);
+}
+.badge-warn {
+  background: var(--amber-50);
+  color: var(--amber-800);
+  border-color: var(--amber-600);
+}
+.status-pill.draft {
+  background: var(--amber-50);
+  color: var(--amber-800);
+  border: 1px solid var(--amber-600);
+}
+.ri-meta {
+  margin: var(--space-2) 0;
+  font-size: var(--text-sm);
+}
+.transcript-panel .seg {
+  line-height: 1.5;
+}
+
+/* Visible keyboard focus everywhere */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--navy-500);
+  outline-offset: 2px;
+}
+
+/* Tablet and phone: one column, note first, transcript after it */
+@media (max-width: 1100px) {
+  .review-workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .review-side {
+    position: static;
+  }
+  .transcript-panel {
+    max-height: 60vh;
+  }
+}
+@media (max-width: 640px) {
+  .panel-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .panel-head h2 {
+    margin-right: 0;
+  }
+  .content {
+    padding: var(--space-3);
+  }
+}
+
+/* ---- Item actions menu, transcript width/collapse ---- */
+.menu {
+  display: inline-block;
+  position: relative;
+}
+.menu > summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-block;
+}
+.menu > summary::-webkit-details-marker {
+  display: none;
+}
+.menu-panel {
+  position: absolute;
+  z-index: 5;
+  right: 0;
+  min-width: 240px;
+  margin-top: var(--space-1);
+  padding: var(--space-3);
+  display: grid;
+  gap: var(--space-3);
+  background: var(--card);
+  border: 1px solid var(--grey-300);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+.danger-text {
+  color: var(--red-800);
+  border-color: var(--red-600);
+}
+.menu-confirm p {
+  margin: 0 0 var(--space-2);
+}
+.side-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+.side-width {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+@media (min-width: 1101px) {
+  .review-workspace {
+    grid-template-columns: minmax(0, 1fr) var(--side-w, 420px);
+  }
+  .review-workspace.side-collapsed {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
+@media (max-width: 1100px) {
+  .topbar {
+    padding: var(--space-2) var(--space-4);
+  }
 }
