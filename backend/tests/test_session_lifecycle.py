@@ -78,7 +78,10 @@ def test_a_new_session_after_clearing_sees_nothing_of_the_old_one():
     c, h, _ = _client()
     c.post("/transcribe", content=b"MOCKCASE:kato_transcript", headers=h)
     c.delete("/auth/session", headers=h)
-    h2 = {"Authorization": "Bearer " + c.post("/auth/dev-login", json={"name": "Dr. Two"}).json()["token"]}
+    h2 = {
+        "Authorization": "Bearer "
+        + c.post("/auth/dev-login", json={"name": "Dr. Two"}).json()["token"]
+    }
     # nothing is addressable by an id: every route that accepts a GET is content-free
     for path in ("/info", "/health", "/ready", "/auth/status"):
         assert c.get(path, headers=h2).status_code in (200, 503)
