@@ -8,11 +8,13 @@ import {
   goToReview,
   handleAllHigh,
   startSession,
+  approveAndDownload,
+  tickFinalReview,
 } from './helpers'
 
 test('Preview is locked until every HIGH item is opened (FR-09)', async ({ page }) => {
   await goToReview(page)
-  const preview = page.getByRole('button', { name: /^Preview/ })
+  const preview = page.getByRole('button', { name: /continue to preview/i })
   await expect(preview).toBeDisabled()
   await page.getByRole('button', { name: /HIGH review item: Bisoprolol/i }).click()
   await expect(preview).toBeDisabled()
@@ -24,8 +26,9 @@ test('approval needs HIGH items resolved or unverified (§12.1)', async ({ page 
   await goToReview(page)
   await page.getByRole('button', { name: /HIGH review item: Bisoprolol/i }).click()
   await page.getByRole('button', { name: /HIGH review item: Amlodipine/i }).click()
-  await page.getByRole('button', { name: /^Preview/ }).click()
-  await expect(page.getByRole('button', { name: /approve this version/i })).toBeDisabled()
+  await page.getByRole('button', { name: /continue to preview/i }).click()
+  await tickFinalReview(page) // even with every confirmation ticked, open HIGH items block approval
+  await expect(page.getByRole('button', { name: 'Approve note' })).toBeDisabled()
 })
 
 test('approve → edit → approval cleared → re-approve with a new version (FR-10)', async ({
@@ -33,31 +36,25 @@ test('approve → edit → approval cleared → re-approve with a new version (F
 }) => {
   await goToReview(page)
   await handleAllHigh(page)
-  await page.getByRole('button', { name: /^Preview/ }).click()
+  await page.getByRole('button', { name: /continue to preview/i }).click()
   await expect(page.getByLabel('Rendered note preview')).toBeVisible()
   const v1 = await page.getByTestId('version-hash').textContent()
-  await Promise.all([
-    page.waitForEvent('download'),
-    page.getByRole('button', { name: /approve this version/i }).click(),
-  ])
+  await approveAndDownload(page)
   await expect(page.getByRole('heading', { name: /your note is ready/i })).toBeVisible()
 
   await page.getByRole('button', { name: /edit note/i }).click()
-  await expect(page.getByText('AI DRAFT – not yet approved')).toBeVisible()
+  await expect(page.getByText(/AI draft · not approved/i)).toBeVisible()
 
   await page.getByTestId('item-f-001').getByRole('button', { name: 'Edit' }).click()
   await page.getByLabel('Edit f-001').fill('Chest pain for 4 days')
   await page.getByRole('button', { name: 'Save' }).click()
   await expect(page.getByTestId('item-f-001')).toContainText('edited by clinician')
 
-  await page.getByRole('button', { name: /^Preview/ }).click()
+  await page.getByRole('button', { name: /continue to preview/i }).click()
   await expect(page.getByLabel('Rendered note preview')).toContainText('Chest pain for 4 days')
   const v2 = await page.getByTestId('version-hash').textContent()
   expect(v2).not.toBe(v1)
-  await Promise.all([
-    page.waitForEvent('download'),
-    page.getByRole('button', { name: /approve this version/i }).click(),
-  ])
+  await approveAndDownload(page)
   await expect(page.getByRole('heading', { name: /your note is ready/i })).toBeVisible()
   await expectNoBrowserStorage(page)
 })
@@ -86,7 +83,7 @@ test('items can be moved and deleted; deleting never removes a HIGH flag (§4.4)
   await bisoprolol.getByRole('button', { name: 'Confirm delete f-015' }).click()
   await expect(page.getByTestId('item-f-015')).toHaveCount(0)
   await expect(page.getByRole('button', { name: /HIGH review item: Bisoprolol/i })).toBeVisible()
-  await expect(page.getByRole('button', { name: /^Preview/ })).toBeDisabled()
+  await expect(page.getByRole('button', { name: /continue to preview/i })).toBeDisabled()
 })
 
 test('a speaker role can be set from a dropdown and the transcript text can be edited (FR-05)', async ({
@@ -122,7 +119,7 @@ test('uploading a synthetic audio file works and a provider timeout is recoverab
   await page.getByRole('button', { name: 'Retry' }).click()
   await expect(page.getByText(/Processing failed/)).toBeVisible({ timeout: 15_000 }) // same audio, same failure
   await page.getByRole('button', { name: /continue with manual entry/i }).click()
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible()
   await expect(page.getByText('No transcript. Type findings directly into the note.')).toBeVisible()
   await page.getByTestId('add-history').click()
   await page.getByLabel('New history finding').fill('Typed by the clinician')
@@ -140,7 +137,9 @@ test('a good uploaded file produces the Kato transcript', async ({ page }) => {
     mimeType: 'audio/webm',
     buffer: Buffer.from('synthetic audio bytes'),
   })
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
+    timeout: 15_000,
+  })
 })
 
 test('closing a tab with an unexported draft prompts (FR-14)', async ({ page }) => {
@@ -168,7 +167,7 @@ test('discarding the draft clears the screen', async ({ page }) => {
   await goToReview(page)
   page.once('dialog', (d) => d.accept())
   await page.getByRole('button', { name: /discard draft/i }).click()
-  await expect(page.getByRole('heading', { name: 'New temporary consultation' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Start a new consultation' })).toBeVisible()
   await expect(page.locator('body')).not.toContainText(/bisoprolol/i)
 })
 
@@ -216,21 +215,18 @@ test('steps are clickable during a session: summaries, locked reasons, and safe 
   await page.getByTestId('step-5').click()
   await expect(page.getByTestId('step-info-5')).toContainText('Not available yet')
   await page.getByRole('button', { name: /back to your current step/i }).click()
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible()
 
   // Once HIGH items are handled, clicking Preview goes there; clicking Review comes back
   await handleAllHigh(page)
   await page.getByTestId('step-4').click()
-  await expect(page.getByRole('heading', { name: 'Approval checklist' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Final review' })).toBeVisible()
   await page.getByTestId('step-3').click()
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible()
 
   // After approval, going back to Review asks first and cancels the approval
   await page.getByTestId('step-4').click()
-  await Promise.all([
-    page.waitForEvent('download'),
-    page.getByRole('button', { name: /approve this version/i }).click(),
-  ])
+  await approveAndDownload(page)
   await expect(page.getByRole('heading', { name: /your note is ready/i })).toBeVisible()
   page.once('dialog', async (d) => {
     expect(d.message()).toMatch(/cancels the approval/i)
@@ -240,8 +236,8 @@ test('steps are clickable during a session: summaries, locked reasons, and safe 
   await expect(page.getByRole('heading', { name: /your note is ready/i })).toBeVisible() // stayed
   page.once('dialog', (d) => d.accept())
   await page.getByTestId('step-3').click()
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible()
-  await expect(page.getByText('AI DRAFT – not yet approved')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible()
+  await expect(page.getByText(/AI draft · not approved/i)).toBeVisible()
 })
 
 test('signing out during a consultation clears it and asks for sign-in again', async ({ page }) => {
@@ -263,7 +259,9 @@ test('second worked example: voices are grouped, one click assigns roles, the no
     mimeType: 'audio/webm',
     buffer: Buffer.from('MOCKCASE:example_hypertension_followup\nsynthetic'),
   })
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
+    timeout: 15_000,
+  })
 
   // Everyone starts as Unknown; the voice panel offers a one-step mapping
   await expect(page.getByLabel('Speaker of segment s-001')).toHaveValue('unknown')
@@ -283,12 +281,13 @@ test('second worked example: voices are grouped, one click assigns roles, the no
   await expect(page.getByLabel('Speaker of segment s-001')).toHaveValue('doctor')
   await expect(page.getByLabel('Speaker of segment s-002')).toHaveValue('patient')
   // Nothing is incomplete, so Preview is open straight away and the note can be approved
-  await expect(page.getByRole('button', { name: /^Preview/ })).toBeEnabled()
-  await page.getByRole('button', { name: /^Preview/ }).click()
+  await expect(page.getByRole('button', { name: /continue to preview/i })).toBeEnabled()
+  await page.getByRole('button', { name: /continue to preview/i }).click()
   await expect(page.getByLabel('Rendered note preview')).toContainText(
     'Ramipril 5 mg orally once daily',
   )
-  await expect(page.getByRole('button', { name: /approve this version/i })).toBeEnabled()
+  await tickFinalReview(page)
+  await expect(page.getByRole('button', { name: 'Approve note' })).toBeEnabled()
 })
 
 test('patient details can be corrected in Review and the correction reaches the preview', async ({
@@ -303,7 +302,7 @@ test('patient details can be corrected in Review and the correction reaches the 
     'Ronald Kato Corrected (FICTIONAL) · 59',
   )
   await handleAllHigh(page)
-  await page.getByRole('button', { name: /^Preview/ }).click()
+  await page.getByRole('button', { name: /continue to preview/i }).click()
   await expect(page.getByLabel('Rendered note preview')).toContainText(
     'Ronald Kato Corrected (FICTIONAL)',
   )
@@ -315,12 +314,14 @@ test('a PDF can be downloaded (no LibreOffice needed) with the patient details i
 }) => {
   await goToReview(page)
   await handleAllHigh(page)
-  await page.getByRole('button', { name: /^Preview/ }).click()
+  await page.getByRole('button', { name: /continue to preview/i }).click()
   await expect(page.getByLabel('Rendered note preview')).toBeVisible()
-  await page.getByRole('button', { name: 'PDF' }).click()
+  await tickFinalReview(page)
+  await page.getByRole('button', { name: 'Approve note' }).click()
+  await page.getByRole('button', { name: 'PDF', exact: true }).click()
   const [download] = await Promise.all([
     page.waitForEvent('download'),
-    page.getByRole('button', { name: /approve this version/i }).click(),
+    page.getByTestId('download-file').click(),
   ])
   expect(download.suggestedFilename()).toMatch(/^consultation_note_\d{4}-\d{2}-\d{2}_\d{4}\.pdf$/)
   const bytes = readFileSync(await download.path())

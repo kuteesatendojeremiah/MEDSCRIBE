@@ -32,40 +32,17 @@ for (const size of SIZES) {
   })
 }
 
-test('the review list can be collapsed from the keyboard but the required-items summary stays', async ({
-  page,
-}) => {
-  await goToReview(page)
-  const toggle = page.getByRole('button', { name: /hide review items/i })
-  await toggle.focus()
-  await page.keyboard.press('Enter')
-  await expect(page.getByRole('button', { name: /show review items/i })).toBeVisible()
-  await expect(page.getByTestId('review-summary')).toContainText('2 required open')
-  await expect(page.getByRole('button', { name: /^Preview/ })).toBeDisabled()
-})
-
 test('focus is visible on interactive controls', async ({ page }) => {
   await goToReview(page)
-  const toggle = page.getByRole('button', { name: /hide review items/i })
+  const toggle = page.getByRole('button', { name: 'Discard draft' })
   // Reach it the way a keyboard user does, so :focus-visible applies.
-  for (let i = 0; i < 80; i++) {
+  for (let i = 0; i < 400; i++) {
     await page.keyboard.press('Tab')
     if (await toggle.evaluate((el) => el === document.activeElement)) break
   }
   expect(await toggle.evaluate((el) => el === document.activeElement)).toBe(true)
   const outline = await toggle.evaluate((el) => getComputedStyle(el).outlineStyle)
   expect(outline).not.toBe('none')
-})
-
-test('the transcript can be collapsed and brought back, and it stays separate from the note', async ({
-  page,
-}) => {
-  await goToReview(page)
-  await page.getByRole('button', { name: 'Collapse transcript' }).click()
-  await expect(page.getByRole('region', { name: 'Transcript' })).toHaveCount(0)
-  await expect(page.getByRole('region', { name: 'Clinical note' })).toBeVisible()
-  await page.getByRole('button', { name: 'Show transcript' }).click()
-  await expect(page.getByRole('region', { name: 'Transcript' })).toBeVisible()
 })
 
 test('deleting a finding needs a second confirming step and leaves the transcript alone', async ({

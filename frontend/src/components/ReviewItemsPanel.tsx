@@ -1,8 +1,8 @@
-// Review-items dock (Blueprint §4.4, FR-09). Opening a card records it as opened. The list can be
-// collapsed, but the summary bar (counts, Preview, Discard) never is, so an unresolved HIGH item can
-// not be hidden from the clinician.
-import { useId, useState } from 'react'
-import { canPreview, highItems } from '../session/selectors'
+// "Needs attention" panel and the Review footer (Blueprint §4.4, FR-09; Figma frame 02). Opening a card
+// records it as opened. Required (HIGH) items stay visible in the panel and block Preview until they are
+// opened and then resolved or marked unverified; advisory items never block.
+import { useState } from 'react'
+import { approvalChecklist, canPreview, highItems } from '../session/selectors'
 import { rebuildNote } from '../session/regenerate'
 import { sessionStore } from '../session/store'
 import type { ReviewItem, SessionState } from '../session/types'
@@ -48,7 +48,10 @@ function Card({
   }
 
   return (
-    <div className={`ri ri-${item.level} ri-${item.status}`} data-testid={`review-${item.id}`}>
+    <div
+      className={`attention-card ri ri-${item.level} ri-${item.status}`}
+      data-testid={`review-${item.id}`}
+    >
       <button
         type="button"
         className="ri-head"
@@ -56,13 +59,13 @@ function Card({
         aria-expanded={open}
         aria-label={`${item.level} review item: ${item.reason}`}
       >
-        <strong>{item.level}</strong> {item.reason}
-        {item.status !== 'open' && (
-          <span className="ri-status"> · {item.status.toUpperCase()}</span>
-        )}
-        {item.level === 'HIGH' && opened && item.status === 'open' && (
-          <span className="ri-status"> · opened</span>
-        )}
+        <span className="lvl">
+          {item.level}
+          {item.status !== 'open' && ` · ${item.status}`}
+          {item.level === 'HIGH' && opened && item.status === 'open' && ' · opened'}
+        </span>
+        <span>{item.reason}</span>
+        <span className="go">{open ? 'Hide details' : 'Review item →'}</span>
       </button>
       {open && (
         <div className="ri-body">
@@ -77,7 +80,7 @@ function Card({
               Source: {mmss(segment.start)} · {ROLE_LABEL[segment.speaker_role]}{' '}
               <button
                 type="button"
-                className="link tiny"
+                className="link"
                 aria-label={`Show source of ${item.id} in transcript`}
                 onClick={() => onLocate(segment.id)}
               >
@@ -150,82 +153,96 @@ export function ReviewItemsPanel({
   onLocate?: (segmentId: string | null) => void
 }) {
   const [regenError, setRegenError] = useState<string | null>(null)
-  const [collapsed, setCollapsed] = useState(false)
-  const listId = useId()
   const items = state.note?.review_items ?? []
   const order = { HIGH: 0, CHECK: 1, INFO: 2 } as const
   const sorted = [...items].sort((a, b) => order[a.level] - order[b.level])
-  const unlocked = canPreview(state)
+  const openCount = items.filter((r) => r.status === 'open').length
   const openHigh = items.filter((r) => r.level === 'HIGH' && r.status === 'open').length
   const unopened = highItems(state.note).filter((r) => !state.openedReviewIds.includes(r.id)).length
-  const advisory = items.filter((r) => r.level !== 'HIGH' && r.status === 'open').length
+  const unlocked = canPreview(state)
+  return (
+    <section className="panel attention-panel" aria-label="Review items">
+      <div className="panel-head">
+        <h2>Needs attention</h2>
+        <span
+          className={openCount ? 'count-pill red' : 'count-pill'}
+          data-testid="review-summary"
+          aria-label={`${openHigh} required items open, ${openCount - openHigh} advisory open`}
+        >
+          {openCount} {openCount === 1 ? 'item' : 'items'}
+        </span>
+      </div>
+      <p className="panel-sub">Resolve critical items before approval.</p>
+      <div>
+        {sorted.map((r) => (
+          <Card key={r.id} item={r} state={state} onLocate={onLocate} />
+        ))}
+      </div>
+      <p className="helper" role="status">
+        {unlocked
+          ? 'All required items opened. Preview is unlocked.'
+          : `Open every required item to unlock Preview (${unopened} left).`}
+      </p>
+      <details className="checklist-box">
+        <summary>Review checklist</summary>
+        <ul className="plain checklist">
+          {approvalChecklist(state).map((l) => (
+            <li key={l.label} className={l.ok ? 'ok' : 'bad'}>
+              <span aria-hidden="true">{l.ok ? '✓' : '✗'}</span> {l.label}
+            </li>
+          ))}
+        </ul>
+      </details>
+      {state.transcript && (
+        <div className="regen">
+          <button
+            type="button"
+            className="btn small outline"
+            onClick={async () => setRegenError(await rebuildNote(sessionStore))}
+          >
+            ↻ Rebuild note from transcript
+          </button>
+          <p className="helper">
+            After fixing speaker roles or text in the transcript, rebuild the draft.
+          </p>
+          {regenError && (
+            <p className="helper" role="alert">
+              Could not rebuild the note (<code>{regenError}</code>). Your draft is unchanged.
+            </p>
+          )}
+        </div>
+      )}
+    </section>
+  )
+}
+
+/** Bottom bar of the Review screen: the draft notice and the real navigation actions. */
+export function ReviewFooter({ state }: { state: SessionState }) {
+  const unlocked = canPreview(state)
   const confirmDiscard = () => {
     if (window.confirm('Discard this draft? Everything will be cleared from this tab.')) {
       sessionStore.dispatch({ type: 'DISCARD' })
     }
   }
   return (
-    <section className="card review-dock" aria-label="Review items">
-      <div className="panel-head">
-        <h2>Review items ({items.length})</h2>
-        <span className="dock-chips" data-testid="review-summary">
-          <span className={openHigh ? 'badge badge-req' : 'badge badge-ok'}>
-            {openHigh ? `${openHigh} required open` : 'No required items open'}
-          </span>
-          <span className="badge badge-adv">{advisory} advisory open</span>
-        </span>
-        <button
-          type="button"
-          className="btn small outline"
-          aria-expanded={!collapsed}
-          aria-controls={listId}
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          {collapsed ? 'Show review items' : 'Hide review items'}
-        </button>
-      </div>
-      <div id={listId} hidden={collapsed}>
-        {sorted.map((r) => (
-          <Card key={r.id} item={r} state={state} onLocate={onLocate} />
-        ))}
-        {state.transcript && (
-          <div className="regen">
-            <button
-              type="button"
-              className="btn small outline"
-              onClick={async () => setRegenError(await rebuildNote(sessionStore))}
-            >
-              ↻ Rebuild note from transcript
-            </button>
-            <p className="muted small">
-              After fixing speaker roles or text in the transcript, rebuild the draft.
-            </p>
-            {regenError && (
-              <p className="muted small" role="alert">
-                Could not rebuild the note (<code>{regenError}</code>). Your draft is unchanged.
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-      <p className="muted" role="status">
-        {unlocked
-          ? 'All required items opened. Preview is unlocked.'
-          : `Open every required item to unlock Preview (${unopened} left).`}
-      </p>
-      <div className="row">
-        <button
-          type="button"
-          className="btn outline"
-          disabled={!unlocked}
-          onClick={() => sessionStore.dispatch({ type: 'PREVIEW' })}
-        >
-          Preview ▸
-        </button>
-        <button type="button" className="link" onClick={confirmDiscard}>
-          Discard draft
-        </button>
-      </div>
-    </section>
+    <div className="review-foot">
+      <span>
+        Draft content is temporary. Approval must be explicit; edits after approval require
+        reapproval.
+      </span>
+      <span className="spacer" />
+      <button type="button" className="btn outline" onClick={confirmDiscard}>
+        Discard draft
+      </button>
+      <button
+        type="button"
+        className="btn primary"
+        disabled={!unlocked}
+        title={unlocked ? undefined : 'Open every required item first'}
+        onClick={() => sessionStore.dispatch({ type: 'PREVIEW' })}
+      >
+        Continue to Preview &amp; approve
+      </button>
+    </div>
   )
 }

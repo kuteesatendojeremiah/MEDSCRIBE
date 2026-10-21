@@ -67,3 +67,4 @@ and running the Docker image (PDF, swap, core dumps, proxy logging), independent
 | I Testing | failure-mode e2e, look-alike drugs, long transcript, health-check script | `e2e/failures.spec.ts`, `test_stage_i_regressions.py`, `scripts/health_check.py` |
 | UI redesign | Review (note-first, review dock, action menu, resizable transcript), Preview, Export, New session and Record updated; not checked in real browsers other than Chrome, no automated accessibility audit tool run | `reviewRedesign.test.tsx`, `stageFormat.test.ts`, `e2e/responsive.spec.ts`, `e2e/screens.spec.ts` |
 | Auto-start sessions | OPEN_ACCESS demo mode, no sign-in form (ADR-0011); FR-01 real SSO still open | `test_open_access.py`, `e2e/open_access.spec.ts` (endpoints simulated in e2e) |
+| Figma UI (frames 01-03) | implemented from PNG exports (ADR-0012); geometry and colours asserted, rest compared by eye; no pixel-diff tool | `e2e/visual.spec.ts`, `docs/design/actual/` |

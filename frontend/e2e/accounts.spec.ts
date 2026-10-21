@@ -24,7 +24,7 @@ test('first-run setup, admin adds a doctor, doctor signs in, wrong password is r
   await expect(page.getByText('The two passwords do not match.')).toBeVisible()
   await page.getByLabel(/repeat password/i).fill(ADMIN_PW)
   await page.getByRole('button', { name: /create administrator/i }).click()
-  await expect(page.getByTestId('user-menu')).toContainText('Dr. Admin Test · admin')
+  await expect(page.getByTestId('user-menu')).toContainText('Dr. Admin Test · Admin')
 
   // Admin adds a doctor
   await page.getByRole('button', { name: 'Doctors' }).click()
@@ -49,9 +49,9 @@ test('first-run setup, admin adds a doctor, doctor signs in, wrong password is r
   await expect(page.getByText('Wrong username or password.')).toBeVisible()
   await page.getByLabel('Password').fill(DOC_PW)
   await page.getByRole('button', { name: 'Sign in' }).click()
-  await expect(page.getByTestId('user-menu')).toContainText('Dr. B. Okello · doctor')
+  await expect(page.getByTestId('user-menu')).toContainText('Dr. B. Okello · Doctor')
   await expect(page.getByRole('button', { name: 'Doctors' })).toHaveCount(0) // admins only
-  await expect(page.getByRole('heading', { name: 'New temporary consultation' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Start a new consultation' })).toBeVisible()
   await expectNoBrowserStorage(page)
 
   await page.getByRole('button', { name: 'Sign out' }).click()
@@ -76,7 +76,7 @@ test('every step can be opened before a session starts and explains what is need
     if (n === 4) await page.screenshot({ path: `${SHOTS}/10-step-locked.png` })
   }
   await page.getByRole('button', { name: /back to your current step/i }).click()
-  await expect(page.getByRole('heading', { name: 'New temporary consultation' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Start a new consultation' })).toBeVisible()
   await page.getByTestId('step-1').click() // the current step: just stays
-  await expect(page.getByRole('heading', { name: 'New temporary consultation' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Start a new consultation' })).toBeVisible()
 })

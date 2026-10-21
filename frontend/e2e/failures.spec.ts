@@ -34,7 +34,9 @@ test('a network drop while transcribing keeps the draft and Retry recovers', asy
   await expect(page.getByText('E_NETWORK')).toBeVisible()
   blocked = false
   await page.getByRole('button', { name: /retry/i }).click()
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
+    timeout: 15_000,
+  })
 })
 
 test('a provider timeout from the server is shown as recoverable', async ({ page }) => {
@@ -58,7 +60,7 @@ test('Clear session removes the draft and leaves no browser storage', async ({ p
   await goToReview(page)
   page.once('dialog', (d) => d.accept())
   await page.getByTestId('clear-session').click()
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toHaveCount(0)
   await expectNoBrowserStorage(page)
 })
 
@@ -67,7 +69,7 @@ test('a cleared session cannot be reached with the browser back button', async (
   page.once('dialog', (d) => d.accept())
   await page.getByTestId('clear-session').click()
   await page.goBack().catch(() => undefined)
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toHaveCount(0)
 })
 
 test('Discard recording asks first, then ends the session and releases the microphone', async ({

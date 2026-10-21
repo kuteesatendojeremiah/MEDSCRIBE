@@ -8,6 +8,7 @@ import {
   handleAllHigh,
   signIn,
   startSession,
+  approveAndDownload,
 } from './helpers'
 
 const SHOTS = '../docs/phase1/screenshots'
@@ -19,7 +20,7 @@ test('Kato walk-through: New session → Record → Review → Preview → Downl
   await page.goto('/')
   await expectNoBrowserStorage(page)
   await signIn(page)
-  const start = page.getByRole('button', { name: /start session/i })
+  const start = page.getByRole('button', { name: /continue to recording/i })
   await expect(start).toBeDisabled()
   await fillNewSession(page)
   await expect(start).toBeDisabled() // consent still missing
@@ -38,16 +39,19 @@ test('Kato walk-through: New session → Record → Review → Preview → Downl
 
   // Step 3 – Review: transcript + draft come from /transcribe and /extract
   await page.getByRole('button', { name: /stop & process/i }).click()
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible({ timeout: 15_000 })
-  await expect(page.getByText('AI DRAFT – not yet approved')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
+    timeout: 15_000,
+  })
+  await expect(page.getByText(/AI draft · not approved/i)).toBeVisible()
   await expect(page.getByText('“Musawo, nfuna obulumi mu kifuba for three days.”')).toBeVisible()
   await expect(page.getByText('→ Doctor, I have chest pain for three days.')).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Review items (5)' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Needs attention' })).toBeVisible()
+  await expect(page.getByTestId('review-summary')).toContainText('5 items')
   // The patient introduction is shown at the top of Review
   await expect(page.getByTestId('patient-summary')).toHaveText(
     'Ronald Kato (FICTIONAL) · 58 · Male · File OPD-07 · Kampala',
   )
-  await expect(page.getByRole('button', { name: /^Preview/ })).toBeDisabled()
+  await expect(page.getByRole('button', { name: /continue to preview/i })).toBeDisabled()
   await expect(page.getByText(/reported by wife, not by patient/)).toBeVisible()
   await expect(page.getByTestId('item-f-004')).toContainText('[00:31 reported by relative]')
   await page.screenshot({ path: `${SHOTS}/3-review.png` })
@@ -60,13 +64,13 @@ test('Kato walk-through: New session → Record → Review → Preview → Downl
   await expect(page.getByText('typed by clinician').first()).toBeVisible()
 
   await handleAllHigh(page)
-  await expect(page.getByRole('button', { name: /^Preview/ })).toBeEnabled()
+  await expect(page.getByRole('button', { name: /continue to preview/i })).toBeEnabled()
   await page.screenshot({ path: `${SHOTS}/3b-review-high-handled.png` })
   await expectNoBrowserStorage(page)
 
   // Step 4 – Preview & approve (server-rendered preview)
-  await page.getByRole('button', { name: /^Preview/ }).click()
-  await expect(page.getByRole('heading', { name: 'Approval checklist' })).toBeVisible()
+  await page.getByRole('button', { name: /continue to preview/i }).click()
+  await expect(page.getByRole('heading', { name: 'Final review' })).toBeVisible()
   await expect(page.getByLabel('Rendered note preview')).toBeVisible()
   const header = page.getByLabel('Rendered note preview')
   for (const text of ['Ronald Kato (FICTIONAL)', '58 · Male', 'OPD-07', 'Kampala']) {
@@ -80,10 +84,7 @@ test('Kato walk-through: New session → Record → Review → Preview → Downl
   await expectNoBrowserStorage(page)
 
   // Step 5 – Approve & download: a real DOCX arrives with a neutral file name
-  const [download] = await Promise.all([
-    page.waitForEvent('download'),
-    page.getByRole('button', { name: /approve this version/i }).click(),
-  ])
+  const download = await approveAndDownload(page)
   expect(download.suggestedFilename()).toMatch(/^consultation_note_\d{4}-\d{2}-\d{2}_\d{4}\.docx$/)
   expect(download.suggestedFilename()).not.toMatch(/kato|ronald/i)
   const bytes = readFileSync(await download.path())
@@ -102,7 +103,7 @@ test('Kato walk-through: New session → Record → Review → Preview → Downl
 
   // End: everything cleared
   await page.getByRole('button', { name: /end session/i }).click()
-  await expect(page.getByRole('heading', { name: 'New temporary consultation' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Start a new consultation' })).toBeVisible()
   await expect(page.getByLabel(/temporary reference/i)).toHaveValue('')
   await expect(page.getByLabel(/full name/i)).toHaveValue('')
   await expect(page.getByLabel(/file \/ opd number/i)).toHaveValue('')

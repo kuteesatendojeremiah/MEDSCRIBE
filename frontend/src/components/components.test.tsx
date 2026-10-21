@@ -6,7 +6,7 @@ import { katoDraftNote, katoSetup, katoTranscript } from '../fixtures/kato'
 import { NewSession } from '../screens/NewSession'
 import { useSessionTimers, useUnloadGuard } from '../session/hooks'
 import { createSessionStore, sessionStore } from '../session/store'
-import { ReviewItemsPanel } from './ReviewItemsPanel'
+import { ReviewFooter, ReviewItemsPanel } from './ReviewItemsPanel'
 
 afterEach(() => {
   cleanup()
@@ -16,8 +16,10 @@ afterEach(() => {
 
 describe('NewSession (FR-02)', () => {
   it('Start is disabled until consent is ticked, then starts a session', () => {
-    render(<NewSession endReason={null} errorCode={null} terminal={false} />)
-    const start = screen.getByRole('button', { name: /start session/i }) as HTMLButtonElement
+    render(<NewSession endReason={null} errorCode={null} terminal={false} clinician="Dr. Test" />)
+    const start = screen.getByRole('button', {
+      name: /continue to recording/i,
+    }) as HTMLButtonElement
     expect(start.disabled).toBe(true)
     fireEvent.click(screen.getByRole('checkbox'))
     expect(start.disabled).toBe(false)
@@ -59,14 +61,21 @@ function toReview() {
 describe('ReviewItemsPanel (FR-09)', () => {
   it('Preview stays disabled until each HIGH card has been opened', () => {
     toReview()
-    const { rerender } = render(<ReviewItemsPanel state={sessionStore.getState()} />)
-    const preview = () => screen.getByRole('button', { name: /preview/i }) as HTMLButtonElement
+    const ui = () => (
+      <>
+        <ReviewItemsPanel state={sessionStore.getState()} />
+        <ReviewFooter state={sessionStore.getState()} />
+      </>
+    )
+    const { rerender } = render(ui())
+    const preview = () =>
+      screen.getByRole('button', { name: /continue to preview/i }) as HTMLButtonElement
     expect(preview().disabled).toBe(true)
     fireEvent.click(screen.getByRole('button', { name: /HIGH review item: Bisoprolol/i }))
-    rerender(<ReviewItemsPanel state={sessionStore.getState()} />)
+    rerender(ui())
     expect(preview().disabled).toBe(true)
     fireEvent.click(screen.getByRole('button', { name: /HIGH review item: Amlodipine/i }))
-    rerender(<ReviewItemsPanel state={sessionStore.getState()} />)
+    rerender(ui())
     expect(preview().disabled).toBe(false)
   })
 

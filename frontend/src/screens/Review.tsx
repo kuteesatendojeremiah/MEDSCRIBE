@@ -2,7 +2,7 @@
 // FR-07 manual entry in every section; §4.2 source tags; clicking a tag highlights its segment.
 import { useEffect, useRef, useState } from 'react'
 import { ROLE_LABEL, ROLE_ORDER, RoleSelect, mmss } from '../components/common'
-import { ReviewItemsPanel } from '../components/ReviewItemsPanel'
+import { ReviewFooter, ReviewItemsPanel } from '../components/ReviewItemsPanel'
 import { missingVitals } from '../session/selectors'
 import { sessionStore } from '../session/store'
 import { hasTypedFindings, rebuildNote } from '../session/regenerate'
@@ -48,22 +48,23 @@ function SegmentRow({ t, cls, selected }: { t: Segment; cls: string; selected: b
       data-testid={`segment-${t.id}`}
       aria-current={selected ? 'true' : undefined}
     >
-      <span className="time">{mmss(t.start)}</span>
-      <RoleSelect
-        role={t.speaker_role}
-        label={`Speaker of segment ${t.id}`}
-        onChange={(role) => sessionStore.dispatch({ type: 'REASSIGN_ROLE', segmentId: t.id, role })}
-      />{' '}
-      {uncertain && (
-        <span className="badge badge-warn" data-testid={`uncertain-${t.id}`}>
-          Speaker uncertain – check the audio
-        </span>
-      )}{' '}
-      {t.voice != null && (
-        <span className="voice-tag" title="Grouped by sound; check it against the audio">
-          voice {t.voice}
-        </span>
-      )}{' '}
+      <div className="seg-meta">
+        <span className="time">{mmss(t.start)}</span>
+        <RoleSelect
+          role={t.speaker_role}
+          label={`Speaker of segment ${t.id}`}
+          uncertain={uncertain}
+          suffix={uncertain ? <span data-testid={`uncertain-${t.id}`}> · uncertain</span> : null}
+          onChange={(role) =>
+            sessionStore.dispatch({ type: 'REASSIGN_ROLE', segmentId: t.id, role })
+          }
+        />
+        {t.voice != null && (
+          <span className="voice-tag" title="Grouped by sound; check it against the audio">
+            voice {t.voice}
+          </span>
+        )}
+      </div>
       {editing ? (
         <span className="row">
           <input
@@ -86,24 +87,26 @@ function SegmentRow({ t, cls, selected }: { t: Segment; cls: string; selected: b
         </span>
       ) : (
         <>
-          {translated ? (
-            <>
-              <em className="orig">“{t.original_text}”</em>
-              <div className="eng">→ {t.english_text}</div>
-            </>
-          ) : (
-            <span>{t.original_text}</span>
-          )}{' '}
+          <div className="seg-text">
+            {translated ? (
+              <>
+                <em className="orig">“{t.original_text}”</em>
+                <div className="eng">→ {t.english_text}</div>
+              </>
+            ) : (
+              <span>{t.original_text}</span>
+            )}
+          </div>
           <button
             type="button"
-            className="link tiny"
+            className="link"
             aria-label={`Edit text of segment ${t.id}`}
             onClick={() => {
               setText(shown)
               setEditing(true)
             }}
           >
-            Edit
+            Edit segment
           </button>
         </>
       )}
@@ -211,40 +214,45 @@ function VoicePanel({ state }: { state: SessionState }) {
 
 function Transcript({ state, highlightId }: { state: SessionState; highlightId: string | null }) {
   const [query, setQuery] = useState('')
-  const matching = searchSegments(state.transcript ?? [], query)
+  const all = state.transcript ?? []
+  const matching = searchSegments(all, query)
   const openHigh = new Set(
     (state.note?.review_items ?? [])
       .filter((r) => r.level === 'HIGH' && r.status === 'open')
       .map((r) => state.note?.items.find((i) => i.id === r.item_id)?.source.segment_id),
   )
   return (
-    <section className="card transcript-panel" aria-label="Transcript">
-      <h2>
-        Transcript <small>(use a speaker label to reassign)</small>
-      </h2>
-      {(state.transcript ?? []).length === 0 && (
+    <section className="panel transcript-panel" aria-label="Transcript">
+      <div className="panel-head">
+        <h2>Transcript</h2>
+        <span className="count-pill">
+          {all.length} {all.length === 1 ? 'segment' : 'segments'}
+        </span>
+      </div>
+      {all.length === 0 && (
         <p className="muted">No transcript. Type findings directly into the note.</p>
       )}
-      <VoicePanel state={state} />
-      <SuggestionsPanel state={state} />
-      {(state.transcript ?? []).length > 0 && (
+      {all.length > 0 && (
         <div className="row">
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search this transcript"
+            placeholder="Search transcript…"
             aria-label="Search transcript"
             spellCheck={false}
             autoComplete="off"
           />
-          {query.trim() && (
-            <span className="muted small" role="status" data-testid="search-count">
-              {matching.length} of {(state.transcript ?? []).length}
-            </span>
-          )}
         </div>
       )}
+      {query.trim() && (
+        <p className="helper" role="status" data-testid="search-count">
+          {matching.length} of {all.length}
+        </p>
+      )}
+      <p className="helper">Select a speaker label to reassign it.</p>
+      <VoicePanel state={state} />
+      <SuggestionsPanel state={state} />
       {matching.map((t) => {
         const cls = openHigh.has(t.id)
           ? 'seg seg-high'
@@ -432,7 +440,7 @@ function AddFinding({ section }: { section: Section }) {
     return (
       <button
         type="button"
-        className="link tiny"
+        className="link"
         data-testid={`add-${section}`}
         onClick={() => setOpen(true)}
       >
@@ -463,6 +471,18 @@ function AddFinding({ section }: { section: Section }) {
   )
 }
 
+/** Sentence-case headings under each section label (the schema sections are fixed, ADR-0010). */
+const SECTION_HEADING: Record<Section, string> = {
+  history: 'Presenting complaint and history',
+  meds_allergies: 'Current medications and allergies',
+  vitals: 'Vital signs',
+  exam: 'Findings',
+  investigations: 'Results',
+  assessment: 'Assessment',
+  treatment: 'Treatment',
+  plan: 'Plan and follow-up',
+}
+
 function Draft({
   state,
   highlightId,
@@ -475,33 +495,47 @@ function Draft({
   const note = state.note
   if (!note) return null
   return (
-    <section className="card note-panel" aria-label="Clinical note">
+    <section className="panel note-panel" aria-label="Clinical note">
       <div className="panel-head">
-        <h2>Draft note</h2>
+        <div>
+          <h2>Clinical note</h2>
+          <p className="panel-sub">Generated from the transcript · review before approval</p>
+        </div>
         <span className="status-pill draft" data-testid="draft-pill">
-          DRAFT · not approved
+          Draft
         </span>
       </div>
       {SECTION_TITLES.map(([sec, title]) => {
         const items = note.items.filter((i) => i.section === sec)
         const missing = sec === 'vitals' ? missingVitals(note) : []
+        const empty = items.length === 0 && missing.length === 0
         return (
           <div key={sec}>
-            <h3 className="sec">{title}</h3>
-            {items.length === 0 && missing.length === 0 && <p className="muted">not recorded</p>}
-            <ul className="items">
-              {items.map((i) => (
-                <ItemRow
-                  key={`${i.id}-${i.text}-${i.source.type}-${i.section}`}
-                  item={i}
-                  state={state}
-                  highlightId={highlightId}
-                  onHighlight={onHighlight}
-                />
-              ))}
-            </ul>
-            {missing.length > 0 && <p className="muted">{missing.join(' / ')}: not recorded</p>}
-            <AddFinding section={sec} />
+            <hr className="note-divider" />
+            <div className="note-section">
+              <p className="eyebrow">{title}</p>
+              <div className="note-section-head">
+                <h3>{SECTION_HEADING[sec]}</h3>
+              </div>
+              <div className={`field-box${empty ? ' warn' : ''}`}>
+                {empty && <p className="muted">not recorded</p>}
+                <ul className="items">
+                  {items.map((i) => (
+                    <ItemRow
+                      key={`${i.id}-${i.text}-${i.source.type}-${i.section}`}
+                      item={i}
+                      state={state}
+                      highlightId={highlightId}
+                      onHighlight={onHighlight}
+                    />
+                  ))}
+                </ul>
+                {missing.length > 0 && <p className="muted">{missing.join(' / ')}: not recorded</p>}
+              </div>
+              <div className="add-row">
+                <AddFinding section={sec} />
+              </div>
+            </div>
           </div>
         )
       })}
@@ -558,70 +592,42 @@ function PatientBanner({ state }: { state: SessionState }) {
     )
   }
   return (
-    <section className="card patient-banner" data-testid="patient-banner">
-      <strong>Patient</strong>{' '}
+    <section className="patient-strip" data-testid="patient-banner">
+      <strong>Patient</strong>
       {shown.length ? (
         <span data-testid="patient-summary">{shown.join(' · ')}</span>
       ) : (
-        <span className="muted">not recorded</span>
-      )}{' '}
+        <span className="muted" data-testid="patient-summary">
+          Not recorded
+        </span>
+      )}
       <button
         type="button"
-        className="link tiny"
+        className="link"
+        aria-label="Edit patient details"
         onClick={() => {
           setDraft(p)
           setEditing(true)
         }}
       >
-        Edit patient details
+        Edit details
       </button>
+      <span className="pill-green grow">Temporary session</span>
     </section>
   )
 }
 
 export function Review({ state }: { state: SessionState }) {
   const [highlightId, setHighlightId] = useState<string | null>(null)
-  const [sideOpen, setSideOpen] = useState(true)
-  const [sideWidth, setSideWidth] = useState(420) // px, tab memory only
   return (
     <>
       <PatientBanner state={state} />
-      <div
-        className={`review-workspace${sideOpen ? '' : ' side-collapsed'}`}
-        style={{ ['--side-w' as string]: `${sideWidth}px` }}
-      >
-        <div className="review-main">
-          <ReviewItemsPanel state={state} onLocate={setHighlightId} />
-          <Draft state={state} highlightId={highlightId} onHighlight={setHighlightId} />
-        </div>
-        <aside className="review-side">
-          <div className="side-controls">
-            <button
-              type="button"
-              className="btn small outline"
-              aria-expanded={sideOpen}
-              onClick={() => setSideOpen(!sideOpen)}
-            >
-              {sideOpen ? 'Collapse transcript' : 'Show transcript'}
-            </button>
-            {sideOpen && (
-              <label className="side-width">
-                Panel width
-                <input
-                  type="range"
-                  min={320}
-                  max={640}
-                  step={20}
-                  value={sideWidth}
-                  onChange={(e) => setSideWidth(Number(e.target.value))}
-                  aria-label="Transcript panel width"
-                />
-              </label>
-            )}
-          </div>
-          {sideOpen && <Transcript state={state} highlightId={highlightId} />}
-        </aside>
+      <div className="review-grid">
+        <Transcript state={state} highlightId={highlightId} />
+        <Draft state={state} highlightId={highlightId} onHighlight={setHighlightId} />
+        <ReviewItemsPanel state={state} onLocate={setHighlightId} />
       </div>
+      <ReviewFooter state={state} />
     </>
   )
 }

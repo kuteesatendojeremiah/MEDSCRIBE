@@ -4,7 +4,7 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { katoDraftNote, katoSetup, katoTranscript } from '../fixtures/kato'
-import { ReviewItemsPanel } from '../components/ReviewItemsPanel'
+import { ReviewFooter, ReviewItemsPanel } from '../components/ReviewItemsPanel'
 import { sessionStore } from '../session/store'
 import { Review, UNCERTAIN_BELOW } from './Review'
 
@@ -19,21 +19,21 @@ function toReview(transcript = katoTranscript) {
   sessionStore.dispatch({ type: 'PROCESS_OK', transcript, note: katoDraftNote() })
 }
 
-describe('review dock', () => {
-  it('summary counts required items open and stays visible when the list is collapsed', () => {
+describe('needs-attention panel', () => {
+  it('shows the open count, split into required and advisory, and keeps Preview gated', () => {
     toReview()
-    render(<ReviewItemsPanel state={sessionStore.getState()} />)
+    render(
+      <>
+        <ReviewItemsPanel state={sessionStore.getState()} />
+        <ReviewFooter state={sessionStore.getState()} />
+      </>,
+    )
     const summary = screen.getByTestId('review-summary')
-    expect(summary.textContent).toMatch(/2 required open/)
-    const toggle = screen.getByRole('button', { name: /hide review items/i })
-    expect(toggle.getAttribute('aria-expanded')).toBe('true')
-    fireEvent.click(toggle)
+    expect(summary.textContent).toMatch(/5 items/)
+    expect(summary.getAttribute('aria-label')).toMatch(/2 required items open, 3 advisory open/)
     expect(
-      screen.getByRole('button', { name: /show review items/i }).getAttribute('aria-expanded'),
-    ).toBe('false')
-    // collapsed: the list is hidden but the counts and the Preview gate are still on screen
-    expect(screen.getByTestId('review-summary').textContent).toMatch(/2 required open/)
-    expect(screen.getByRole('button', { name: /preview/i })).toBeTruthy()
+      (screen.getByRole('button', { name: /continue to preview/i }) as HTMLButtonElement).disabled,
+    ).toBe(true)
     expect(screen.getByText(/Open every required item to unlock Preview \(2 left\)/)).toBeTruthy()
   })
 
@@ -74,7 +74,7 @@ describe('review workspace', () => {
   it('marks the note as a draft and the transcript as a separate panel', () => {
     toReview()
     render(<Review state={sessionStore.getState()} />)
-    expect(screen.getByTestId('draft-pill').textContent).toMatch(/DRAFT · not approved/)
+    expect(screen.getByTestId('draft-pill').textContent).toMatch(/Draft/)
     expect(screen.getByRole('region', { name: 'Clinical note' })).toBeTruthy()
     expect(screen.getByRole('region', { name: 'Transcript' })).toBeTruthy()
   })

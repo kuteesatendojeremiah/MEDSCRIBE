@@ -264,11 +264,23 @@ export default function App() {
     }
   }
 
+  const screenName =
+    phase === 'review'
+      ? 'review'
+      : phase === 'preview'
+        ? 'preview'
+        : phase === 'approved'
+          ? 'download'
+          : phase === 'capture' || phase === 'processing' || phase === 'recoverable_error'
+            ? 'record'
+            : 'new'
+
   return (
     <Shell
       state={state}
       user={user}
       info={info}
+      screen={screenName}
       viewStep={viewStep}
       onStep={onStep}
       onSignOut={open ? undefined : doSignOut}

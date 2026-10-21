@@ -29,7 +29,7 @@ test('no sign-in form: the consultation form opens straight away and has no Sign
 }) => {
   await openMode(page)
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: 'New temporary consultation' })).toBeVisible({
+  await expect(page.getByRole('heading', { name: 'Start a new consultation' })).toBeVisible({
     timeout: 15_000,
   })
   await expect(page.getByLabel(/password/i)).toHaveCount(0)
@@ -45,16 +45,18 @@ test('Start needs consent and the clinician name, and the name is printed as the
   await page.goto('/')
   await fillNewSession(page)
   await page.getByRole('checkbox').check()
-  const start = page.getByRole('button', { name: /start session/i })
+  const start = page.getByRole('button', { name: /continue to recording/i })
   await expect(start).toBeDisabled() // no name yet
-  await page.getByLabel(/your name, as printed on the note/i).fill('Dr. A. Nankya (FICTIONAL)')
+  await page.getByLabel(/^clinician name/i).fill('Dr. A. Nankya (FICTIONAL)')
   await expect(start).toBeEnabled()
   await start.click()
   await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
   await page.getByRole('button', { name: /stop & process/i }).click()
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
+    timeout: 15_000,
+  })
   await handleAllHigh(page)
-  await page.getByRole('button', { name: /^Preview/ }).click()
+  await page.getByRole('button', { name: /continue to preview/i }).click()
   await expect(page.getByLabel('Rendered note preview')).toContainText('Dr. A. Nankya (FICTIONAL)')
 })
 

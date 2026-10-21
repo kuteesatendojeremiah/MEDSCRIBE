@@ -1,30 +1,30 @@
 :root {
   /* ---- Design tokens: the single place for colour, spacing, radius, shadow and type ---- */
   /* Brand */
-  --navy-50: #eef3f9;
-  --navy-100: #dbe7f3;
-  --navy-500: #1f4e79;
-  --navy-600: #1a4268;
-  --navy-700: #173b5c;
+  --navy-50: #f0f5fa;
+  --navy-100: #e8f2fc;
+  --navy-500: #29639c;
+  --navy-600: #1f4f7a;
+  --navy-700: #173d61;
   /* Neutrals */
   --grey-0: #fff;
-  --grey-50: #f6f8fb;
+  --grey-50: #f5f7fa;
   --grey-100: #eceff5;
-  --grey-200: #d9dee8;
-  --grey-300: #b8c2d4;
-  --grey-500: #5b6573;
-  --grey-900: #1a1f26;
+  --grey-200: #dbe3eb;
+  --grey-300: #c2cfde;
+  --grey-500: #637387;
+  --grey-900: #1a293b;
   /* Status: amber = caution, red = real errors/destructive only, green = success */
-  --amber-50: #fff7e0;
-  --amber-200: #f0d58a;
-  --amber-600: #b7791f;
-  --amber-800: #7a5200;
-  --red-50: #fdecec;
-  --red-600: #c00000;
-  --red-800: #8f0000;
-  --green-50: #e8f3df;
-  --green-600: #3f7a1f;
-  --green-800: #2d4d16;
+  --amber-50: #fff7e3;
+  --amber-200: #e8bf75;
+  --amber-600: #a6610a;
+  --amber-800: #a6610a;
+  --red-50: #fcebeb;
+  --red-600: #b82926;
+  --red-800: #b82926;
+  --green-50: #e6f5eb;
+  --green-600: #1f6e4f;
+  --green-800: #1f6e4f;
   /* Spacing scale */
   --space-1: 4px;
   --space-2: 8px;
@@ -34,22 +34,22 @@
   --space-8: 32px;
   /* Radius and shadow */
   --radius-sm: 6px;
-  --radius-md: 10px;
+  --radius-md: 8px;
   --radius-pill: 999px;
   --shadow-sm: 0 1px 2px rgba(23, 59, 92, 0.08);
   --shadow-md: 0 2px 8px rgba(23, 59, 92, 0.12);
   --focus-ring: 0 0 0 3px rgba(31, 78, 121, 0.35);
   /* Type scale */
-  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-body: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Consolas, monospace;
   --text-xs: 12px;
   --text-sm: 14px;
-  --text-base: 16px;
-  --text-lg: 18px;
-  --text-xl: 22px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
   --text-2xl: 28px;
   /* Layout */
-  --header-h: 56px;
+  --header-h: 64px;
   --control-h: 44px;
 
   /* ---- Legacy aliases (existing rules use these names) ---- */

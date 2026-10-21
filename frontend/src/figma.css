@@ -1,0 +1,1029 @@
+/* Figma implementation layer ("Mediscribe Clinical Documentation UI": 01 New consultation, 02 Review
+   workspace, 03 Preview and approve). Values were measured from the exported frames in docs/design/
+   (1440 x 1000) and are held as tokens in index.css :root. Loaded after index.css, so it wins over the
+   older rules it replaces. */
+
+body {
+  font-size: var(--text-base);
+  line-height: 1.45;
+  color: var(--grey-900);
+  background: var(--grey-50);
+}
+
+/* ---- Header (64px, navy) ---- */
+.topbar {
+  height: var(--header-h);
+  min-height: var(--header-h);
+  padding: 0 28px;
+  gap: 12px;
+  background: var(--navy-700);
+  flex-wrap: nowrap;
+}
+.brand {
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-right: 4px;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--navy-700);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+}
+.chip-light {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  background: var(--navy-600);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.user-menu {
+  gap: 12px;
+}
+.user-menu .chip-light {
+  text-transform: none;
+  font-size: 12px;
+}
+.topbar-btn {
+  height: 30px;
+  min-height: 30px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--navy-600);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+}
+.topbar-btn:hover:not(:disabled) {
+  background: var(--navy-500);
+}
+.session-clock.warn {
+  background: var(--amber-50);
+  color: var(--amber-800);
+}
+.session-clock.critical {
+  background: var(--red-600);
+  color: #fff;
+}
+
+/* ---- Workflow stepper (75px bar, 32px circles joined by a 2px line) ---- */
+.stepper {
+  top: var(--header-h);
+  height: 75px;
+  padding: 9px var(--space-6) 0;
+  background: #fff;
+  border-bottom: 1px solid var(--grey-200);
+}
+.stepper ol {
+  max-width: 1030px;
+}
+.stepper li:not(:last-child)::after,
+.stepper li.done:not(:last-child)::after {
+  top: 15px;
+  height: 2px;
+  background: var(--grey-200);
+}
+.step {
+  gap: 7px;
+  min-width: 110px;
+  font-size: 12px;
+  color: var(--grey-500);
+}
+.step-dot {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--grey-300);
+  font-size: 12px;
+  font-weight: 500;
+}
+.step.done .step-dot,
+.step.current .step-dot {
+  background: var(--navy-500);
+  border-color: var(--navy-500);
+  color: #fff;
+  box-shadow: none;
+}
+.step.done {
+  color: var(--grey-500);
+}
+.step.current {
+  color: var(--navy-700);
+  font-weight: 600;
+}
+.step.current .step-dot {
+  font-weight: 600;
+}
+
+/* ---- Page frame and headings ---- */
+.content {
+  max-width: none;
+  margin: 0;
+  padding: 32px 44px 24px;
+}
+.content.screen-review {
+  padding: 12px 24px 24px;
+}
+.content.screen-preview {
+  padding: 32px 32px 24px;
+}
+.page-head h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--navy-700);
+  line-height: 1.2;
+}
+.page-head p {
+  margin: 6px 0 0;
+  font-size: 14px;
+  color: var(--grey-500);
+}
+.page-head {
+  margin-bottom: 24px;
+}
+h2 {
+  margin: 0 0 4px;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--navy-700);
+}
+h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--navy-700);
+}
+
+/* ---- Cards ---- */
+.card {
+  margin: 0;
+  padding: 25px;
+  font-size: var(--text-base);
+  background: #fff;
+  border: 1px solid var(--grey-200);
+  border-radius: var(--radius-md);
+}
+.helper,
+.form-sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--grey-500);
+}
+
+/* ---- Buttons ---- */
+.btn {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--grey-200);
+  background: #fff;
+  color: var(--navy-700);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn.small {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+.btn.primary,
+.btn.approve {
+  background: var(--navy-500);
+  border-color: var(--navy-500);
+  color: #fff;
+}
+.btn.primary:hover:not(:disabled),
+.btn.approve:hover:not(:disabled) {
+  background: var(--navy-600);
+}
+.btn.outline,
+.btn.ghost {
+  background: #fff;
+  border-color: var(--grey-200);
+  color: var(--navy-700);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.link {
+  color: var(--navy-500);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ---- Form controls ---- */
+.field {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.field label,
+label {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--grey-500);
+}
+input,
+select,
+textarea {
+  font: inherit;
+  font-size: 14px;
+  color: var(--grey-900);
+}
+.field input,
+.field select,
+.field textarea {
+  height: 40px;
+  padding: 0 12px;
+  background: #fff;
+  border: 1px solid var(--grey-200);
+  border-radius: 5px;
+}
+.field input::placeholder {
+  color: var(--grey-500);
+}
+.field input[readonly] {
+  background: #fff;
+  color: var(--grey-900);
+}
+.form-section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.form-grid {
+  gap: 16px 20px;
+}
+.divider,
+.form-section + .form-section.divided {
+  border-top: 1px solid var(--grey-200);
+  margin-top: 20px;
+  padding-top: 20px;
+}
+.consent-box {
+  display: grid;
+  gap: 4px;
+  margin-top: 24px;
+  padding: 14px 14px 14px;
+  background: var(--navy-100);
+  border-radius: var(--radius-sm);
+}
+.consent-box strong {
+  font-size: 14px;
+  color: var(--navy-700);
+}
+.consent-box label,
+.consent-box .helper {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--grey-500);
+}
+.consent-box input[type='checkbox'] {
+  margin-top: 2px;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+.form-actions .btn.primary {
+  min-width: 202px;
+}
+
+/* ---- Screen 1: New consultation ---- */
+.new-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 849fr) minmax(0, 475fr);
+  gap: 28px;
+  align-items: start;
+}
+.side-card {
+  padding: 22px;
+}
+.side-card + .side-card {
+  margin-top: 20px;
+}
+.side-card.accent {
+  border-left: 3px solid var(--green-600);
+}
+.side-card h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+.side-card p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--grey-900);
+}
+.tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--green-50);
+  color: var(--green-600);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.page-foot {
+  margin-top: 24px;
+  font-size: 13px;
+  color: var(--grey-500);
+}
+
+/* ---- Screen 2: Review workspace (transcript | clinical note | needs attention) ---- */
+.patient-strip {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 46px;
+  padding: 0 17px;
+  margin: 0 0 17px;
+  background: #fff;
+  border: 1px solid var(--grey-200);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+.patient-strip strong {
+  color: var(--navy-700);
+  font-weight: 600;
+}
+.patient-strip .muted {
+  color: var(--grey-500);
+}
+.patient-strip .grow {
+  margin-left: auto;
+}
+.pill-green {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  background: var(--green-50);
+  color: var(--green-600);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.review-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 349fr) minmax(0, 649fr) minmax(0, 351fr);
+  gap: 21px;
+  align-items: start;
+}
+.panel {
+  margin: 0;
+  padding: 19px;
+  background: #fff;
+  border: 1px solid var(--grey-200);
+  border-radius: var(--radius-md);
+  min-width: 0;
+}
+.panel.note-panel {
+  padding: 21px;
+}
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.panel-head h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.panel-sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--grey-500);
+}
+.count-pill,
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: var(--radius-pill);
+  background: var(--navy-50);
+  color: var(--grey-500);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.count-pill.red {
+  background: var(--red-50);
+  color: var(--red-600);
+  text-transform: uppercase;
+}
+.status-pill.draft,
+.count-pill.amber {
+  background: var(--amber-50);
+  color: var(--amber-800);
+  border: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.status-pill.done {
+  background: var(--green-50);
+  color: var(--green-600);
+}
+
+/* transcript */
+.transcript-panel {
+  max-height: none;
+  overflow: visible;
+}
+.panel input[type='search'] {
+  width: 100%;
+  height: 38px;
+  margin: 12px 0 8px;
+  padding: 0 12px;
+  border: 1px solid var(--grey-200);
+  border-radius: 5px;
+  font-size: 13px;
+}
+.seg {
+  padding: 12px 0;
+  border-top: 1px solid var(--grey-200);
+  background: none;
+  border-left: 0;
+  font-size: 14px;
+}
+.seg:first-of-type {
+  border-top: 0;
+}
+.seg .time {
+  display: inline-block;
+  min-width: 44px;
+  font-size: 12px;
+  color: var(--grey-500);
+}
+.seg .eng,
+.seg .orig {
+  display: block;
+  margin-top: 6px;
+}
+.seg-text {
+  display: block;
+  margin: 6px 0 8px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--navy-50);
+  color: var(--grey-500);
+}
+.chip select {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 2px 0 0;
+  cursor: pointer;
+}
+.chip-patient {
+  background: var(--green-50);
+  color: var(--green-600);
+}
+.chip-doctor {
+  background: var(--navy-100);
+  color: var(--navy-500);
+}
+.chip-relative,
+.chip-uncertain {
+  background: var(--amber-50);
+  color: var(--amber-800);
+}
+.seg-high {
+  background: var(--red-50);
+}
+.seg-selected {
+  outline: 2px solid var(--navy-500);
+  outline-offset: -2px;
+  background: var(--navy-100);
+}
+
+/* clinical note */
+.note-section {
+  padding-top: 14px;
+}
+.note-section + .note-section {
+  margin-top: 4px;
+}
+.note-divider {
+  border: 0;
+  border-top: 1px solid var(--grey-200);
+  margin: 16px 0 0;
+}
+.eyebrow {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--navy-500);
+}
+.note-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 2px 0 8px;
+}
+.note-section-head h3 {
+  font-size: 15px;
+}
+.field-box {
+  min-height: 52px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid var(--grey-200);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--grey-900);
+}
+.field-box.warn {
+  background: var(--amber-50);
+  border-color: var(--amber-200);
+  color: var(--amber-800);
+}
+.field-box ul.items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.field-box .muted {
+  margin: 0;
+}
+
+/* needs attention */
+.attention-card {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--grey-200);
+  border-radius: 6px;
+}
+.attention-card .ri-head {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  color: var(--grey-900);
+  cursor: pointer;
+}
+.attention-card .lvl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.attention-card .go {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--navy-500);
+}
+.attention-card.ri-HIGH {
+  background: var(--red-50);
+  border-color: var(--red-600);
+}
+.attention-card.ri-HIGH .lvl {
+  color: var(--red-600);
+}
+.attention-card.ri-CHECK {
+  background: var(--amber-50);
+  border-color: var(--amber-600);
+}
+.attention-card.ri-CHECK .lvl {
+  color: var(--amber-600);
+}
+.attention-card.ri-INFO {
+  background: var(--navy-50);
+  border-color: var(--grey-500);
+}
+.attention-card.ri-INFO .lvl {
+  color: var(--grey-500);
+}
+.attention-card.ri-resolved,
+.attention-card.ri-unverified {
+  opacity: 0.8;
+}
+.attention-card .ri-body {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+.checklist-box {
+  margin-top: 24px;
+  padding: 12px 14px;
+  border: 1px solid var(--grey-200);
+  border-radius: 6px;
+}
+.checklist-box summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy-700);
+}
+.review-foot {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--grey-500);
+}
+.review-foot .spacer {
+  flex: 1;
+}
+
+/* ---- Screen 3: Preview and approve ---- */
+.preview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 859fr) minmax(0, 491fr);
+  gap: 25px;
+  align-items: start;
+}
+.doc-card {
+  padding: 27px;
+}
+.doc-card .eyebrow {
+  color: var(--grey-500);
+  margin-bottom: 16px;
+}
+.paper {
+  min-height: 560px;
+  margin: 0;
+  padding: 28px 28px 24px;
+  background: #fff;
+  border: 1px solid var(--grey-200);
+  border-radius: 4px;
+  box-shadow: none;
+  font-size: 14px;
+}
+.paper h1 {
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--grey-200);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--navy-700);
+  text-align: left;
+}
+.paper h4 {
+  margin: 18px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--navy-500);
+}
+.paper p {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: var(--grey-900);
+}
+.paper footer {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--grey-500);
+}
+.final-card {
+  padding: 23px;
+}
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0 0;
+  font-size: 14px;
+  color: var(--grey-900);
+  cursor: pointer;
+}
+.check-row input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--navy-500);
+}
+.important-box {
+  margin-top: 28px;
+  padding: 14px;
+  background: var(--amber-50);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--grey-900);
+}
+.important-box strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--amber-800);
+}
+.approve-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  margin-top: 20px;
+}
+.approve-actions .btn.approve {
+  flex: 1;
+}
+
+/* ---- Responsive: the desktop frames stay the target; narrower widths stack the same panels ---- */
+@media (max-width: 1200px) {
+  .review-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .review-grid > .attention-panel {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 1100px) {
+  .new-grid,
+  .preview-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .topbar {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 16px;
+  }
+  .content,
+  .content.screen-review,
+  .content.screen-preview {
+    padding: 20px 16px;
+  }
+}
+@media (max-width: 800px) {
+  .review-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .step-label {
+    display: none;
+  }
+}
+
+/* form grid columns */
+.form-grid.cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.form-grid.cols-3 {
+  grid-template-columns: minmax(0, 1fr) 180px 180px;
+}
+.form-grid .span-2 {
+  grid-column: 1 / -1;
+}
+.form-grid {
+  display: grid;
+}
+fieldset.form-section legend {
+  padding: 0;
+}
+fieldset.form-section h3 {
+  margin-bottom: 2px;
+}
+@media (max-width: 800px) {
+  .form-grid.cols-2,
+  .form-grid.cols-3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---- Measured fixes after the first side-by-side comparison with the frames ---- */
+.topbar .spacer {
+  min-width: 0;
+}
+.chip-ref {
+  max-width: 230px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  line-height: 30px;
+}
+.user-menu {
+  flex-wrap: nowrap;
+}
+.page-head {
+  margin-bottom: 25px;
+}
+.content {
+  padding-top: 26px;
+}
+.content.screen-review {
+  padding-top: 12px;
+}
+.page-head h1 {
+  line-height: 1.15;
+}
+.page-head p {
+  margin-top: 4px;
+}
+.field input,
+.field select {
+  min-height: 40px;
+  height: 40px;
+}
+.form-rule {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid var(--grey-200);
+}
+.link {
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.link:hover {
+  text-decoration: underline;
+}
+.patient-strip .pill-green.grow {
+  flex: none;
+  margin-left: auto;
+}
+.patient-strip .link {
+  font-size: 12px;
+}
+.panel input[type='search'] {
+  min-height: 38px;
+}
+.seg .time,
+.seg-meta .time {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--grey-500);
+}
+.seg-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.seg-text,
+.seg-text * {
+  font-size: 14px;
+}
+.seg-text em {
+  font-style: italic;
+  color: var(--grey-500);
+}
+
+/* note rows: text, quiet source tag, and link-style actions instead of heavy buttons */
+.field-box li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+}
+.field-box li .src,
+.field-box li .src-btn {
+  font-family: inherit;
+  font-size: 11px;
+  color: var(--grey-500);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.field-box li .src-btn:hover {
+  text-decoration: underline;
+  color: var(--navy-500);
+}
+.field-box li .btn.small,
+.field-box li .menu > summary {
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--navy-500);
+  font-size: 12px;
+  font-weight: 500;
+}
+.field-box li .menu > summary:hover,
+.field-box li .btn.small:hover {
+  text-decoration: underline;
+}
+.add-row {
+  margin-top: 6px;
+}
+.checklist-box summary::marker {
+  color: var(--grey-500);
+}
+
+/* fixed-height columns on desktop, as in the frame: each panel scrolls, the footer stays in view */
+@media (min-width: 1201px) {
+  .review-grid {
+    height: calc(100vh - 314px);
+    min-height: 480px;
+    align-items: stretch;
+  }
+  .review-grid > .panel {
+    height: 100%;
+    overflow-y: auto;
+  }
+}
+
+/* preview */
+.paper .demo-line {
+  margin: 0 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--amber-800);
+}
+@media (min-width: 1101px) {
+  .doc-card .paper {
+    max-height: calc(100vh - 400px);
+    overflow-y: auto;
+  }
+}
+.final-card .check-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0 0;
+  font-size: 14px;
+  color: var(--grey-900);
+}
+.final-card .check-row input[type='checkbox'] {
+  appearance: none;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1px solid var(--grey-200);
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+.final-card .check-row input[type='checkbox']:checked {
+  background: var(--navy-500)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m3.5 8.5 3 3 6-7' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 14px no-repeat;
+  border-color: var(--navy-500);
+}
+
+/* narrow screens: the patient strip wraps instead of overflowing */
+@media (max-width: 800px) {
+  .patient-strip {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 46px;
+    gap: 6px 14px;
+    padding: 8px 14px;
+  }
+  .patient-strip .pill-green.grow {
+    margin-left: 0;
+  }
+}
+
+/* Download & end: one centred card (no Figma frame; same tokens as the other screens) */
+.screen-download .center-card {
+  max-width: 760px;
+  margin: 0 auto;
+}

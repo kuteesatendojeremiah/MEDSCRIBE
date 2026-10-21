@@ -32,19 +32,9 @@ export function mmss(seconds: number): string {
 
 function BrandMark() {
   return (
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
-      <path
-        d="M6 2.5h9.5L21 8v15a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 5 23V4a1.5 1.5 0 0 1 1-1.5Z"
-        fill="#fff"
-      />
-      <path d="M15.5 2.5V8H21" stroke="#9db9d6" strokeWidth="1.2" />
-      <path
-        d="M8 16v-1M10.5 18v-5M13 20v-9M15.5 18v-5M18 16v-1"
-        stroke="#1f4e79"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
+    <span className="brand-mark" aria-hidden="true">
+      M
+    </span>
   )
 }
 
@@ -107,6 +97,7 @@ export function Shell({
   onSignOut,
   onAdmin,
   showSteps = true,
+  screen,
   children,
 }: {
   state: SessionState
@@ -117,6 +108,7 @@ export function Shell({
   onSignOut?: () => void
   onAdmin?: () => void
   showSteps?: boolean
+  screen?: string
   children: ReactNode
 }) {
   const step = stepIndex(state.phase)
@@ -130,16 +122,24 @@ export function Shell({
           <BrandMark />
           Mediscribe
         </span>
-        {inSession && <span className="chip-light">Ref {state.setup.tempRef} · temporary</span>}
+        {inSession && (
+          <span className="chip-light chip-ref" title="Temporary reference (not stored)">
+            {state.setup.tempRef ? `Ref ${state.setup.tempRef} · temporary` : 'Ref · temporary'}
+          </span>
+        )}
         {draftLabel && <span className="chip-light">{draftLabel}</span>}
         <span className="spacer" />
+        <span className="chip-light" data-testid="engine-badge" title={demoStrip(info)}>
+          {info?.speech === 'local' ? 'Demo mode' : 'Demo · mock transcription'}
+          <span className="sr-only"> · {demoStrip(info)}</span>
+        </span>
         {user && inSession && state.lastActivityAt !== null && (
           <SessionClock lastActivityAt={state.lastActivityAt} />
         )}
         {user && (
           <span className="user-menu" data-testid="user-menu">
             <span className="chip-light">
-              {user.name} · {user.role}
+              {user.name} · {user.role === 'admin' ? 'Admin' : 'Doctor'}
             </span>
             {user.role === 'admin' && onAdmin && (
               <button
@@ -181,9 +181,6 @@ export function Shell({
           </span>
         )}
       </header>
-      <div className="demo-strip" role="note" data-testid="engine-badge">
-        {demoStrip(info)}
-      </div>
       {showSteps && (
         <nav className="stepper" aria-label="Progress">
           <ol>
@@ -223,7 +220,7 @@ export function Shell({
           </div>
         </nav>
       )}
-      <main className="content">{children}</main>
+      <main className={`content${screen ? ` screen-${screen}` : ''}`}>{children}</main>
     </>
   )
 }
@@ -292,7 +289,7 @@ export function PasswordField({
 }
 
 function draftBadge(phase: Phase): string | null {
-  if (phase === 'review' || phase === 'preview') return 'AI DRAFT – not yet approved'
+  if (phase === 'review' || phase === 'preview') return 'AI draft · not approved'
   if (phase === 'approved') return 'Approved version'
   return null
 }
@@ -319,28 +316,41 @@ export function InactivityNote({ state }: { state: SessionState }) {
   )
 }
 
-/** A role dropdown styled like the role chip: who spoke this segment (clinician decides, §7.2). */
+/** A role dropdown styled as a speaker chip: who spoke this segment (clinician decides, §7.2).
+ * `suffix` is shown inside the chip, for example the "uncertain" marker. */
 export function RoleSelect({
   role,
   onChange,
   label,
+  uncertain = false,
+  suffix,
 }: {
   role: SpeakerRole
   onChange: (r: SpeakerRole) => void
   label: string
+  uncertain?: boolean
+  suffix?: ReactNode
 }) {
+  const tone = uncertain
+    ? 'uncertain'
+    : role === 'patient' || role === 'doctor' || role === 'relative'
+      ? role
+      : 'other'
   return (
-    <select
-      className={`role role-select role-${role}`}
-      value={role}
-      aria-label={label}
-      onChange={(e) => onChange(e.target.value as SpeakerRole)}
-    >
-      {ROLE_ORDER.map((r) => (
-        <option key={r} value={r}>
-          {ROLE_LABEL[r]}
-        </option>
-      ))}
-    </select>
+    <span className={`chip chip-${tone}`}>
+      <select
+        className="role-select"
+        value={role}
+        aria-label={label}
+        onChange={(e) => onChange(e.target.value as SpeakerRole)}
+      >
+        {ROLE_ORDER.map((r) => (
+          <option key={r} value={r}>
+            {ROLE_LABEL[r]}
+          </option>
+        ))}
+      </select>
+      {suffix}
+    </span>
   )
 }

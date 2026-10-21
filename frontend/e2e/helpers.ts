@@ -47,10 +47,10 @@ export async function fillNewSession(page: Page) {
 /** Sign-in finishes in the background; Start is enabled once consent is ticked and sign-in done. */
 export async function startSession(page: Page) {
   await page.getByRole('checkbox').check()
-  await expect(page.getByRole('button', { name: /start session/i })).toBeEnabled({
+  await expect(page.getByRole('button', { name: /continue to recording/i })).toBeEnabled({
     timeout: 10_000,
   })
-  await page.getByRole('button', { name: /start session/i }).click()
+  await page.getByRole('button', { name: /continue to recording/i }).click()
 }
 
 export async function goToReview(page: Page) {
@@ -59,7 +59,9 @@ export async function goToReview(page: Page) {
   await startSession(page)
   await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
   await page.getByRole('button', { name: /stop & process/i }).click()
-  await expect(page.getByRole('heading', { name: 'Draft note' })).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
+    timeout: 15_000,
+  })
 }
 
 export const highCard = (page: Page, drug: string) =>
@@ -73,4 +75,23 @@ export async function handleAllHigh(page: Page) {
   await highCard(page, 'Amlodipine')
     .getByRole('button', { name: /mark unverified/i })
     .click()
+}
+
+/** Ticks the clinician's five final-review confirmations on the Preview screen. */
+export async function tickFinalReview(page: Page) {
+  const boxes = page.getByRole('group', { name: 'Final review checklist' }).getByRole('checkbox')
+  const n = await boxes.count()
+  for (let i = 0; i < n; i++) await boxes.nth(i).check()
+}
+
+/** Approves the previewed note (explicit clinician action), then downloads it from the next screen. */
+export async function approveAndDownload(page: Page) {
+  await tickFinalReview(page)
+  await page.getByRole('button', { name: 'Approve note' }).click()
+  await expect(page.getByTestId('approved-pill')).toBeVisible()
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByTestId('download-file').click(),
+  ])
+  return download
 }

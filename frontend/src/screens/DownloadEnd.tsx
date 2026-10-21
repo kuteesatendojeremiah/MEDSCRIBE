@@ -57,7 +57,7 @@ export function DownloadEnd({ state }: { state: SessionState }) {
       <div className="big-check" aria-hidden="true">
         ✔
       </div>
-      <h2>{ready ? 'Approved – your note is ready' : 'Approved – preparing your note'}</h2>
+      <h2>{ready ? 'Approved – your note is ready' : 'Approved – ready to download'}</h2>
       <div className="filename" data-testid="filename">
         {name}
       </div>
