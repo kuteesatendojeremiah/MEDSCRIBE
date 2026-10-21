@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, Request
 
 from app.medical.suggest import suggest
+from app.providers.call import call_provider
 from app.providers.base import ProviderError, ProviderGateError
 from app.providers.registry import get_speech_provider
 from app.security.deps import current_user
@@ -23,8 +24,11 @@ async def transcribe(request: Request, claims: Claims = Depends(current_user)):
         provider = getattr(request.app.state, "speech_provider", None)
         if provider is None:  # created once: a local model is slow to load (holds no clinical data)
             provider = request.app.state.speech_provider = get_speech_provider(settings)
-        segments = provider.transcribe(
-            audio, expected_languages=request.headers.get("x-expected-languages")
+        segments = await call_provider(
+            provider.transcribe,
+            audio,
+            settings=settings,
+            expected_languages=request.headers.get("x-expected-languages"),
         )
     except ProviderGateError as exc:
         raise ApiError(503, exc.code, "recoverable") from None

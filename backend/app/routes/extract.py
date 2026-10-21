@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from app.extract.mapping import ExtractInvalid, build_note
 from app.extract.provider import get_extract_provider
+from app.providers.call import call_provider
 from app.providers.base import ProviderError, ProviderGateError, Segment
 from app.schema.models import Header
 from app.security.body import read_limited_body
@@ -40,7 +41,9 @@ async def extract(request: Request, claims: Claims = Depends(current_user)):
         provider = getattr(request.app.state, "extract_provider", None) or get_extract_provider(
             settings
         )
-        raw = provider.extract(body.segments, header.get("present", []))
+        raw = await call_provider(
+            provider.extract, body.segments, header.get("present", []), settings=settings
+        )
         note, _report = build_note(raw, body.segments, header)
     except ProviderGateError as exc:
         raise ApiError(503, exc.code, "recoverable") from None

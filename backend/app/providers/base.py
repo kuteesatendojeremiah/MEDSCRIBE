@@ -30,9 +30,11 @@ class Segment(BaseModel):
 class ProviderError(Exception):
     """Recoverable provider failure (timeout, unavailable). Carries a content-free code only."""
 
-    def __init__(self, code: str = "E_PROVIDER_FAILED"):
+    def __init__(self, code: str = "E_PROVIDER_FAILED", *, retryable: bool = False):
         super().__init__(code)
         self.code = code
+        # Only transient failures may be retried automatically (settings.provider_max_retries).
+        self.retryable = retryable
 
 
 class ProviderGateError(ProviderError):
