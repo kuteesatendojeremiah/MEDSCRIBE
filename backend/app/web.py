@@ -23,7 +23,7 @@ def create_web_app(
     dist = static_dir or settings.static_dir or (REPO_ROOT / "frontend" / "dist")
     outer = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     outer.add_middleware(NoStoreMiddleware)
-    outer.mount("/api", create_app(settings))
+    outer.mount("/api", create_app(settings, static_dir=dist))
     if dist.is_dir():
         outer.mount("/", StaticFiles(directory=dist, html=True), name="web")
     return outer

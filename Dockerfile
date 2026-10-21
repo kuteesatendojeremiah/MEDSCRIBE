@@ -22,6 +22,8 @@ COPY fixtures ./fixtures
 COPY --from=web /web/dist ./web
 USER 10001
 EXPOSE 8000
+# Liveness only; content-free (/api/health). Render uses its own healthCheckPath (render.yaml).
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3   CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status == 200 else 1)"
 # No request/response body logging anywhere (§10.1); access log off. Core dumps are disabled by the
 # runtime (docker run --ulimit core=0), see docs/deploy.md.
 CMD ["uvicorn", "app.web:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log", "--log-level", "warning"]

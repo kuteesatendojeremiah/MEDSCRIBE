@@ -1,6 +1,8 @@
+from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 from app.logging_filter import configure_logging
 from app.middleware import NoStoreMiddleware
@@ -12,7 +14,7 @@ from app.security.tokens import TokenService
 from app.settings import Settings, get_settings
 
 
-def create_app(settings: Optional[Settings] = None) -> FastAPI:
+def create_app(settings: Optional[Settings] = None, static_dir: Optional[Path] = None) -> FastAPI:
     configure_logging()
     settings = settings or get_settings()
     app = FastAPI(title="Mediscribe", docs_url=None, redoc_url=None, openapi_url=None)
@@ -42,6 +44,19 @@ def create_app(settings: Optional[Settings] = None) -> FastAPI:
     @app.get("/health")
     def health() -> dict:
         return {"status": "ok"}
+
+    @app.get("/ready")
+    def ready():
+        """Booleans only: no secrets, versions, paths or content. 503 until the app can serve."""
+        frontend = static_dir is None or static_dir.is_dir()
+        provider = settings.provider == "mock" or settings.provider_gate_approved
+        ok = frontend and provider
+        body = {
+            "status": "ready" if ok else "not_ready",
+            "frontend": frontend,
+            "provider": provider,
+        }
+        return JSONResponse(body, status_code=200 if ok else 503)
 
     return app
 
