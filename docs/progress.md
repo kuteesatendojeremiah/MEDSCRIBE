@@ -51,3 +51,11 @@ privacy scan **0 hits**; lint clean. Details: `docs/governance/spec_compliance_r
 See `docs/governance/open_decisions.md`: real SSO, provider gate and any real provider, DPO/legal review and
 approvals, clinician evaluation (review time, usability), fluent-speaker review of Luganda fixtures, building
 and running the Docker image (PDF, swap, core dumps, proxy logging), independent security assessment.
+
+
+## Engineering upgrade (spec stages)
+
+| Stage | Status | Evidence |
+|---|---|---|
+| A Audit | done (read-only) | deployed app answered 200 (first request 23.7 s cold start); baseline tests all green |
+| B Reliability | built, awaiting gate approval; Docker build/HEALTHCHECK **not verified** | `test_settings.py`, `test_health.py`, `test_provider_timeout.py`, `api/client.timeout.test.ts`, ADR-0008 |

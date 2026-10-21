@@ -38,6 +38,12 @@ docker run --rm -p 8000:8000 \
 | Rate and upload limits per user | `RATE_LIMIT_PER_MINUTE` (default 60), `MAX_UPLOAD_BYTES` (default 50 MB, about 50 minutes at 64 kbit/s) |
 | Provider gate | `PROVIDER_GATE_APPROVED=false` by default; a real adapter also needs the provider in `PROVIDER_ALLOW_LIST` (§10.5, `docs/governance/provider_gate_checklist.md`) |
 
+## Health checks (ADR-0008)
+
+`GET /api/health` is liveness (`{"status":"ok"}`); `GET /api/ready` returns booleans only and 503 until the frontend bundle
+and provider configuration are usable. Neither returns secrets, paths or content. Invalid settings stop startup with a message
+that names the setting but never its value.
+
 ## Sign-in
 
 `DEV_AUTH_ENABLED=false` in any shared environment. The facility SSO (OIDC/SAML) integration replaces
@@ -48,7 +54,7 @@ clinical content (ADR-0003). Until then nothing here is suitable for real users.
 
 `PROVIDER` (`mock`), `PROVIDER_GATE_APPROVED` (`false`), `PROVIDER_ALLOW_LIST` (JSON list, empty),
 `TOKEN_SECRET`, `TOKEN_TTL_SECONDS` (900), `TOKEN_ABSOLUTE_SECONDS` (7200), `MAX_UPLOAD_BYTES`,
-`RATE_LIMIT_PER_MINUTE`, `SYNTHETIC_ONLY` (`true`: exports print a DEMONSTRATION line), `STATIC_DIR`,
+`RATE_LIMIT_PER_MINUTE`, `PROVIDER_TIMEOUT_SECONDS` (60), `PROVIDER_MAX_RETRIES` (0), `SYNTHETIC_ONLY` (`true`: exports print a DEMONSTRATION line), `STATIC_DIR`,
 `FIXTURES_DIR`.
 
 ## What is verified (and what is not)
