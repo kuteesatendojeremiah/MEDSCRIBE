@@ -37,14 +37,59 @@ export const clearToken = () => {
   user = null
 }
 
+// Per-call time limits (§6.3: a timeout is recoverable). The status/info calls allow for a free-tier
+// cold start (about a minute); transcription is the slowest real call.
+const TIMEOUT_MS = {
+  default: 30_000,
+  wake: 90_000,
+  extract: 60_000,
+  render: 60_000,
+  transcribe: 120_000,
+}
+const timeoutFor = (path: string) =>
+  path === '/auth/status' || path === '/info'
+    ? TIMEOUT_MS.wake
+    : path.startsWith('/transcribe')
+      ? TIMEOUT_MS.transcribe
+      : path.startsWith('/extract')
+        ? TIMEOUT_MS.extract
+        : path.startsWith('/render')
+          ? TIMEOUT_MS.render
+          : TIMEOUT_MS.default
+/** Only side-effect-free GETs are retried automatically; clinical POSTs are never re-sent unasked. */
+const RETRYABLE_PATHS = new Set(['/auth/status', '/info'])
+const RETRY_DELAY_MS = 1_000
+
 async function request(path: string, init: RequestInit = {}): Promise<Response> {
+  try {
+    return await attempt(path, init)
+  } catch (e) {
+    const transient = e instanceof ApiFailure && (e.code === 'E_NETWORK' || e.code === 'E_TIMEOUT')
+    if (!transient || !RETRYABLE_PATHS.has(path)) throw e
+    await new Promise((r) => setTimeout(r, RETRY_DELAY_MS))
+    return await attempt(path, init)
+  }
+}
+
+async function attempt(path: string, init: RequestInit): Promise<Response> {
   const headers = new Headers(init.headers)
   if (token) headers.set('Authorization', `Bearer ${token}`)
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutFor(path))
   let res: Response
   try {
-    res = await fetch(`${BASE}${path}`, { ...init, headers, cache: 'no-store' })
-  } catch {
-    throw new ApiFailure('E_NETWORK', 'recoverable') // network drop keeps the draft (§6.3)
+    res = await fetch(`${BASE}${path}`, {
+      ...init,
+      headers,
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+  } catch (e) {
+    const aborted = e instanceof DOMException && e.name === 'AbortError'
+    // timeout or network drop: both keep the draft (§6.3)
+    throw new ApiFailure(aborted ? 'E_TIMEOUT' : 'E_NETWORK', 'recoverable')
+  } finally {
+    clearTimeout(timer)
   }
   if (!res.ok) {
     let code = `E_HTTP_${res.status}`

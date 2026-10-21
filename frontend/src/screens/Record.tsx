@@ -142,6 +142,8 @@ export function Record({ state }: { state: SessionState }) {
               Error code: <code>{state.errorCode}</code>. You can retry, or continue by typing the
               note yourself.
               {state.errorCode === 'E_EMPTY_AUDIO' && ' No audio was captured.'}
+              {(state.errorCode === 'E_TIMEOUT' || state.errorCode === 'E_PROVIDER_TIMEOUT') &&
+                ' The service took too long to answer.'}
             </div>
             <div className="row center">
               <button

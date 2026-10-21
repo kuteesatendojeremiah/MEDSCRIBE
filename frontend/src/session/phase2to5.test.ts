@@ -187,6 +187,26 @@ describe('pipeline (§6.3, §12.2)', () => {
     expect(audioBuffer.has()).toBe(true)
   })
 
+  it('a server-side provider timeout (504) is recoverable and keeps the audio', async () => {
+    const store = await pipelineWith(() =>
+      json({ error: 'E_PROVIDER_TIMEOUT', class: 'recoverable' }, 504),
+    )
+    expect(store.getState().phase).toBe('recoverable_error')
+    expect(store.getState().errorCode).toBe('E_PROVIDER_TIMEOUT')
+    expect(audioBuffer.has()).toBe(true)
+  })
+
+  it('a client-side timeout after transcription keeps the transcript for retry', async () => {
+    const store = await pipelineWith((url) =>
+      url.endsWith('/transcribe')
+        ? json({ segments: katoTranscript })
+        : Promise.reject(new DOMException('aborted', 'AbortError')),
+    )
+    expect(store.getState().phase).toBe('recoverable_error')
+    expect(store.getState().errorCode).toBe('E_TIMEOUT')
+    expect(store.getState().transcript).toHaveLength(15)
+  })
+
   it('a network drop is recoverable', async () => {
     const store = await pipelineWith(() => Promise.reject(new TypeError('network')))
     expect(store.getState().phase).toBe('recoverable_error')

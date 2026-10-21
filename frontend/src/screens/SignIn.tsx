@@ -20,6 +20,7 @@ const MESSAGES: Record<string, string> = {
   E_NAME_INVALID: 'Enter the name that should be printed on notes (for example “Dr. A. Nankya”).',
   E_PASSWORD_WEAK: 'Password must be at least 10 characters.',
   E_NETWORK: 'Cannot reach the server. Check that Mediscribe is running.',
+  E_TIMEOUT: 'The server took too long to answer. Try again in a moment.',
   E_SETUP_DONE: 'An administrator already exists. Sign in instead.',
 }
 /** Usernames are lower-case with no spaces: typing "Sheila Nakafeero" becomes "sheila.nakafeero". */

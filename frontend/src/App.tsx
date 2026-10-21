@@ -29,6 +29,7 @@ import { sessionStore, useSession } from './session/store'
 
 const IDLE_SIGN_OUT_MS = 15 * 60_000 // §6.2: sign-in ends after 15 minutes without activity
 const REFRESH_EVERY_MS = 60_000
+const WAKING_NOTICE_MS = 3_000
 
 export default function App() {
   const state = useSession()
@@ -36,6 +37,7 @@ export default function App() {
   const [status, setStatus] = useState<AuthStatus | null>(null)
   const [info, setInfo] = useState<ServerInfo | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [waking, setWaking] = useState(false) // slow first response: a sleeping free-tier server
   const [view, setView] = useState<'consult' | 'admin'>('consult')
   const [viewStep, setViewStep] = useState<Step | null>(null)
   const lastInput = useRef(0)
@@ -51,9 +53,11 @@ export default function App() {
   }, [phase])
 
   useEffect(() => {
+    const slow = window.setTimeout(() => setWaking(true), WAKING_NOTICE_MS)
     authStatus()
       .then(setStatus)
       .catch(() => setStatus(null))
+      .finally(() => window.clearTimeout(slow))
     getInfo()
       .then(setInfo)
       .catch(() => setInfo(null))
@@ -135,7 +139,10 @@ export default function App() {
       <Shell state={state} info={info} showSteps={false}>
         <SignIn
           status={status}
-          notice={notice}
+          notice={
+            notice ??
+            (waking && !status ? 'The server is waking up. This can take up to a minute.' : null)
+          }
           onSignedIn={(u) => {
             setNotice(null)
             setUser(u)
