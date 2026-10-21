@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     environment: str = "dev"
     # Demo sign-in for tests/demonstrations ONLY. Off by default; doctors sign in with accounts.
     dev_auth_enabled: bool = False
+    # Demo only (ADR-0011): start a guest session with no sign-in form. Needs synthetic_only.
+    open_access: bool = False
+    open_sessions_per_minute: int = Field(default=20, gt=0)
     accounts_file: Path = REPO_ROOT / "backend" / "data" / "accounts.json"
     login_max_failures: int = 5
     login_window_seconds: int = 300
@@ -56,6 +59,12 @@ class Settings(BaseSettings):
         if value not in KNOWN_PROVIDERS:
             raise ValueError("provider is not a known provider name")
         return value
+
+    @model_validator(mode="after")
+    def _open_access_is_synthetic_only(self) -> "Settings":
+        if self.open_access and not self.synthetic_only:
+            raise ValueError("open_access requires synthetic_only")
+        return self
 
     @model_validator(mode="after")
     def _ttl_within_absolute(self) -> "Settings":

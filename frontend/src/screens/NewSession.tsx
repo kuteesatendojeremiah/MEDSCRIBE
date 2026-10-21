@@ -27,13 +27,18 @@ export function NewSession({
   terminal,
   signedIn = true,
   clinician = '',
+  askName = false,
 }: {
   endReason: EndReason | null
   errorCode: string | null
   terminal: boolean
   signedIn?: boolean
   clinician?: string
+  /** Guest sessions have no account name, so the clinician types the name printed on the note. */
+  askName?: boolean
 }) {
+  const [typedName, setTypedName] = useState('')
+  const who = askName ? typedName.trim() : clinician
   const [setup, setSetup] = useState<Setup>({
     ...DEFAULT_SETUP,
     present: [...DEFAULT_SETUP.present],
@@ -129,6 +134,25 @@ export function NewSession({
             </div>
           </div>
         </div>
+
+        {askName && (
+          <div className="form-section" data-testid="clinician-name">
+            <div className="field">
+              <label htmlFor="ns-clinician">
+                Your name, as printed on the note <span className="opt req">required</span>
+              </label>
+              <input
+                id="ns-clinician"
+                value={typedName}
+                onChange={(e) => setTypedName(e.target.value)}
+                spellCheck={false}
+                autoComplete="off"
+                maxLength={100}
+                placeholder="e.g. Dr. A. Nankya"
+              />
+            </div>
+          </div>
+        )}
 
         <fieldset className="form-section plain-fieldset" data-testid="patient-details">
           <legend>
@@ -273,8 +297,8 @@ export function NewSession({
           <button
             type="button"
             className="btn primary"
-            disabled={!setup.consent || !signedIn}
-            onClick={() => sessionStore.dispatch({ type: 'START_SESSION', setup, clinician })}
+            disabled={!setup.consent || !signedIn || (askName && !who)}
+            onClick={() => sessionStore.dispatch({ type: 'START_SESSION', setup, clinician: who })}
           >
             Start session, continue to recording →
           </button>

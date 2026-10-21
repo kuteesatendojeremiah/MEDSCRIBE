@@ -9,6 +9,7 @@ import {
   refreshToken,
   setUnauthorizedHandler,
   signOut,
+  startOpenSession,
   type AuthStatus,
   type AuthUser,
   type ServerInfo,
@@ -37,6 +38,8 @@ export default function App() {
   const [status, setStatus] = useState<AuthStatus | null>(null)
   const [info, setInfo] = useState<ServerInfo | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [openError, setOpenError] = useState(false)
+  const [openTry, setOpenTry] = useState(0)
   const [waking, setWaking] = useState(false) // slow first response: a sleeping free-tier server
   const [view, setView] = useState<'consult' | 'admin'>('consult')
   const [viewStep, setViewStep] = useState<Step | null>(null)
@@ -62,6 +65,20 @@ export default function App() {
       .then(setInfo)
       .catch(() => setInfo(null))
   }, [])
+
+  // Demo deployments (ADR-0011): no sign-in form. A guest session starts by itself, and starts again
+  // after expiry or Clear session.
+  const open = status?.open_access === true
+  useEffect(() => {
+    if (!open || user) return
+    let live = true
+    startOpenSession()
+      .then((u) => live && setUser(u))
+      .catch(() => live && setOpenError(true))
+    return () => {
+      live = false
+    }
+  }, [open, user, openTry])
 
   // Audio is only needed until processing succeeds; drop it as soon as it is not (§10.2).
   useEffect(() => {
@@ -134,6 +151,42 @@ export default function App() {
   }
 
   // ---- not signed in ------------------------------------------------------------------------------
+  if (!user && open) {
+    return (
+      <Shell state={state} info={info} showSteps={false}>
+        <section className="card auth-card signin" role="status" data-testid="auto-start">
+          {openError ? (
+            <>
+              <h2>Could not start a session</h2>
+              <p className="muted">
+                The server did not answer. This can take up to a minute to wake.
+              </p>
+              <button
+                type="button"
+                className="btn primary"
+                onClick={() => {
+                  setOpenError(false)
+                  setOpenTry((n) => n + 1)
+                }}
+              >
+                Try again
+              </button>
+            </>
+          ) : (
+            <>
+              <h2>Starting a temporary session…</h2>
+              <p className="muted">
+                {waking
+                  ? 'The server is waking up. This can take up to a minute.'
+                  : 'No account is needed and nothing is saved.'}
+              </p>
+            </>
+          )}
+        </section>
+      </Shell>
+    )
+  }
+
   if (!user) {
     return (
       <Shell state={state} info={info} showSteps={false}>
@@ -205,6 +258,7 @@ export default function App() {
             terminal={phase === 'terminal_error'}
             signedIn
             clinician={user.name}
+            askName={open}
           />
         )
     }
@@ -217,7 +271,7 @@ export default function App() {
       info={info}
       viewStep={viewStep}
       onStep={onStep}
-      onSignOut={doSignOut}
+      onSignOut={open ? undefined : doSignOut}
       onAdmin={() => setView('admin')}
     >
       {warning}

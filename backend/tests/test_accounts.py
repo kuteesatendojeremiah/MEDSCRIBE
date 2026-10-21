@@ -109,7 +109,11 @@ def test_throttle_blocks_after_n_failures_then_recovers():
 # ---- HTTP ------------------------------------------------------------------------------------------------
 def test_first_run_status_then_setup_creates_the_first_admin_once():
     c, _ = real_client()
-    assert c.get("/auth/status").json() == {"setup_needed": True, "demo_login": False}
+    assert c.get("/auth/status").json() == {
+        "setup_needed": True,
+        "demo_login": False,
+        "open_access": False,
+    }
     r = setup(c)
     assert r.status_code == 200
     assert r.json()["user"] == {"username": "dr.nankya", "name": "Dr. A. Nankya", "role": "admin"}

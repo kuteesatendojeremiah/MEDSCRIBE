@@ -121,6 +121,8 @@ function adopt(body: SessionBody): AuthUser {
 export interface AuthStatus {
   setup_needed: boolean
   demo_login: boolean
+  /** Demo deployments only (ADR-0011): a guest session starts with no sign-in form. */
+  open_access: boolean
 }
 
 export async function authStatus(): Promise<AuthStatus> {
@@ -149,6 +151,12 @@ export async function setupFirstAccount(
     headers: JSON_HEADERS,
     body: JSON.stringify({ username, name, password }),
   })
+  return adopt((await res.json()) as SessionBody)
+}
+
+/** Guest session for the synthetic-data demo; the server refuses it unless OPEN_ACCESS=true. */
+export async function startOpenSession(): Promise<AuthUser> {
+  const res = await request('/auth/open', { method: 'POST' })
   return adopt((await res.json()) as SessionBody)
 }
 

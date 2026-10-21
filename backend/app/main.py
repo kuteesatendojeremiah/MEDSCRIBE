@@ -21,6 +21,7 @@ def create_app(settings: Optional[Settings] = None, static_dir: Optional[Path] =
     app.state.settings = settings
     app.state.tokens = TokenService(settings)
     app.state.limiter = RateLimiter(settings.rate_limit_per_minute)
+    app.state.open_limiter = RateLimiter(settings.open_sessions_per_minute)
     app.state.accounts = AccountStore(settings.accounts_file)
     app.state.throttle = LoginThrottle(settings.login_max_failures, settings.login_window_seconds)
     app.add_middleware(NoStoreMiddleware)

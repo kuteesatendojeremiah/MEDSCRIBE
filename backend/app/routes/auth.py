@@ -4,6 +4,8 @@ Facility SSO (OIDC/SAML) replaces password sign-in in production - ADR-0006. Ide
 here is linked to clinical content. Error bodies carry a code and a class, never user input.
 """
 
+import secrets
+
 from fastapi import APIRouter, Depends, Request, Response
 from pydantic import BaseModel, Field
 
@@ -43,7 +45,11 @@ class NewAccount(BaseModel):
 def status(request: Request):
     """Content-free: lets the sign-in screen choose between first-run setup and sign-in."""
     s = request.app.state
-    return {"setup_needed": s.accounts.is_empty(), "demo_login": s.settings.dev_auth_enabled}
+    return {
+        "setup_needed": s.accounts.is_empty() and not s.settings.open_access,
+        "demo_login": s.settings.dev_auth_enabled,
+        "open_access": s.settings.open_access,
+    }
 
 
 @router.post("/setup")
@@ -90,6 +96,20 @@ def dev_login(body: DevLogin, request: Request):
     name = body.name.strip() or "Demo doctor"
     token = request.app.state.tokens.issue(name, name, "doctor")
     return {**_session_body(request, token, name, name, "doctor"), "name": name}
+
+
+@router.post("/open")
+def open_session(request: Request):
+    """Guest session for the synthetic-data demo (ADR-0011): no form, no account. Off unless
+    OPEN_ACCESS=true. The token is as short-lived and revocable as any other, with its own rate limit
+    bucket, and starting sessions is itself rate limited so new guests cannot bypass the limits."""
+    s = request.app.state
+    if not s.settings.open_access:
+        raise ApiError(404, "E_NOT_FOUND", "terminal")
+    s.open_limiter.check("open")
+    guest = f"guest-{secrets.token_hex(4)}"
+    token = s.tokens.issue(guest, "Clinician", "doctor")
+    return _session_body(request, token, guest, "Clinician", "doctor")
 
 
 @router.post("/refresh")

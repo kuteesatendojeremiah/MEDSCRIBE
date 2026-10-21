@@ -237,12 +237,14 @@ def test_app_state_holds_only_identity_and_counters_never_content(ran):
         "settings",
         "tokens",
         "limiter",
+        "open_limiter",  # guest-session start timestamps under one constant key (ADR-0011)
         "speech_provider",
         "accounts",
         "throttle",
     }
     assert not _walk(app.state.tokens._revoked)  # token ids only
     assert not _walk(dict(app.state.limiter._hits))  # timestamps keyed by user id
+    assert not _walk(dict(app.state.open_limiter._hits))  # timestamps keyed by a constant
 
 
 def test_server_restart_loses_nothing_because_nothing_is_held(ran):

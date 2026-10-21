@@ -54,7 +54,7 @@ clinical content (ADR-0003). Until then nothing here is suitable for real users.
 
 `PROVIDER` (`mock`), `PROVIDER_GATE_APPROVED` (`false`), `PROVIDER_ALLOW_LIST` (JSON list, empty),
 `TOKEN_SECRET`, `TOKEN_TTL_SECONDS` (900), `TOKEN_ABSOLUTE_SECONDS` (7200), `MAX_UPLOAD_BYTES`,
-`RATE_LIMIT_PER_MINUTE`, `PROVIDER_TIMEOUT_SECONDS` (60), `PROVIDER_MAX_RETRIES` (0), `SYNTHETIC_ONLY` (`true`: exports print a DEMONSTRATION line), `STATIC_DIR`,
+`RATE_LIMIT_PER_MINUTE`, `PROVIDER_TIMEOUT_SECONDS` (60), `PROVIDER_MAX_RETRIES` (0), `SYNTHETIC_ONLY` (`true`: exports print a DEMONSTRATION line), `OPEN_ACCESS` (`false`; demo only, needs `SYNTHETIC_ONLY`, ADR-0011), `OPEN_SESSIONS_PER_MINUTE` (20), `STATIC_DIR`,
 `FIXTURES_DIR`.
 
 ## What is verified (and what is not)

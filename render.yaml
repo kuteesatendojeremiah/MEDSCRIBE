@@ -18,6 +18,9 @@ services:
         value: "false"
       - key: DEV_AUTH_ENABLED
         value: "false"
+      # Demo only (ADR-0011): no sign-in form; a guest session starts by itself. Needs SYNTHETIC_ONLY.
+      - key: OPEN_ACCESS
+        value: "true"
       - key: SYNTHETIC_ONLY
         value: "true"
       - key: ENVIRONMENT
