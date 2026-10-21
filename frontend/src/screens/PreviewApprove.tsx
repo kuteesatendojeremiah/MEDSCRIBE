@@ -23,7 +23,7 @@ export function PreviewApprove({ state }: { state: SessionState }) {
     let cancelled = false
     void (async () => {
       try {
-        const d = await renderPreview(note)
+        const d = await renderPreview(note, state.setup.template)
         if (cancelled) return
         // Integrity check: what the server previews must be exactly what this tab will approve.
         if (d.short_hash !== shortHash(noteHash(note))) {
@@ -44,7 +44,7 @@ export function PreviewApprove({ state }: { state: SessionState }) {
     return () => {
       cancelled = true
     }
-  }, [note, attempt])
+  }, [note, attempt, state.setup.template])
 
   const approve = async () => {
     sessionStore.dispatch({ type: 'APPROVE' })

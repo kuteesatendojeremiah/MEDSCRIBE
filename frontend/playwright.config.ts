@@ -23,6 +23,7 @@ export default defineConfig({
       command: '.venv\\Scripts\\python -m uvicorn app.main:app --host 127.0.0.1 --port 8000',
       cwd: '../backend',
       env: {
+        RATE_LIMIT_PER_MINUTE: '1000', // one shared demo user across the whole run; the limit has its own unit test
         DEV_AUTH_ENABLED: 'true', // lets most specs use the demo sign-in; accounts.spec.ts uses real accounts
         ACCOUNTS_FILE: join(tmpdir(), `mediscribe-e2e-accounts-${Date.now()}.json`),
       },

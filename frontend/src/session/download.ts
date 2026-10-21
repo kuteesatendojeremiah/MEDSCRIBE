@@ -49,7 +49,13 @@ async function renderAndSave(store: SessionStore): Promise<DownloadResult> {
   const s = store.getState()
   if (s.phase !== 'approved' || !s.note || !s.approval) return { ok: false, code: 'E_NOT_APPROVED' }
   try {
-    const blob = await renderFinal(s.note, s.approval.fullHash, s.approval.approvedAt, s.format)
+    const blob = await renderFinal(
+      s.note,
+      s.approval.fullHash,
+      s.approval.approvedAt,
+      s.format,
+      s.setup.template,
+    )
     ready = { blob, name: neutralFileName(new Date(s.approval.approvedAt), s.format) }
     saveBlob(ready.blob, ready.name)
     store.dispatch({ type: 'DOWNLOAD_DONE' })

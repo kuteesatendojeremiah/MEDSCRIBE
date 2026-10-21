@@ -59,3 +59,9 @@ and running the Docker image (PDF, swap, core dumps, proxy logging), independent
 |---|---|---|
 | A Audit | done (read-only) | deployed app answered 200 (first request 23.7 s cold start); baseline tests all green |
 | B Reliability | built, awaiting gate approval; Docker build/HEALTHCHECK **not verified** | `test_settings.py`, `test_health.py`, `test_provider_timeout.py`, `api/client.timeout.test.ts`, ADR-0008 |
+| C Workspace | done; states mapped onto Blueprint §6.1 (ADR-0009), no new phases | `stageC.test.ts`, `e2e/failures.spec.ts` |
+| D/H Notes and cardiology template | template layer over the fixed schema (ADR-0010); presenting complaint/HPI and allergies are **not** separate headings; no clinician review yet | `test_templates.py`, `docs/clinical/cardiology_template_review.md` |
+| E Review/approval | already built; added tests that every edit after approval cancels it | `stageE.test.ts` |
+| F Export | already built; added DOCX/PDF equivalence tests; PDF font is Latin-1 only (Luganda letters such as Ŋ print as `?`) | `test_export_equivalence.py` |
+| G Lifecycle/privacy | tokens only, no server store (ADR-0003); audit written | `test_session_lifecycle.py`, `docs/governance/stage_g_privacy_audit.md` |
+| I Testing | failure-mode e2e, look-alike drugs, long transcript, health-check script | `e2e/failures.spec.ts`, `test_stage_i_regressions.py`, `scripts/health_check.py` |

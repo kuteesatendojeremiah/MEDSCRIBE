@@ -9,17 +9,8 @@ from typing import Optional
 
 from app.extract.review_engine import VITAL_NAMES, join_and, missing_vitals
 from app.render.hash import note_hash, short_hash
+from app.templates import CARDIOLOGY, Template
 
-SECTION_TITLES = [
-    ("history", "HISTORY"),
-    ("meds_allergies", "MEDICATIONS AND ALLERGIES"),
-    ("vitals", "VITAL SIGNS"),
-    ("exam", "EXAMINATION FINDINGS"),
-    ("investigations", "INVESTIGATIONS AND RESULTS"),
-    ("assessment", "ASSESSMENT"),
-    ("treatment", "TREATMENT"),
-    ("plan", "PLAN"),
-]
 ATTRIBUTION = {
     "patient": "patient",
     "other_clinician": "nurse / other clinician",
@@ -116,6 +107,7 @@ def build_document(
     approver: str,
     approved_at: Optional[datetime] = None,
     demo: bool = True,
+    template: Template = CARDIOLOGY,
 ) -> Document:
     header = note["header"]
     review = note["review_items"]
@@ -132,18 +124,28 @@ def build_document(
     ]
 
     sections: list[Section] = []
-    for key, title in SECTION_TITLES:
-        sec = Section(title)
-        for it in (i for i in note["items"] if i["section"] == key):
+    for spec in template.sections:
+        sec = Section(spec.heading)
+        for it in (i for i in note["items"] if i["section"] == spec.key):
             sec.lines.append(Line(line_text(it), it["id"] in unverified_ids))
-        if key == "vitals":
+        if spec.key == "vitals":
             missing = missing_vitals(note["items"])
             if missing:
                 names = [VITAL_NAMES.get(m, m) for m in missing]
                 sec.lines.append(Line(f"{join_and(names)}: not recorded during this consultation."))
         if not sec.lines:
+            if spec.omit_when_empty:
+                continue  # left out, never filled with invented text
             sec.lines.append(Line("not recorded"))
         sections.append(sec)
+
+    # An item in a section this template does not list is still printed, never dropped.
+    listed = {spec.key for spec in template.sections}
+    extra = Section(template.fallback_heading)
+    for it in (i for i in note["items"] if i["section"] not in listed):
+        extra.lines.append(Line(line_text(it), it["id"] in unverified_ids))
+    if extra.lines:
+        sections.append(extra)
 
     resolved = [r["reason"] for r in review if r["status"] == "resolved" and r["level"] != "INFO"]
     unverified = [r["reason"] for r in review if r["status"] == "unverified"]
@@ -165,7 +167,7 @@ def build_document(
         f"{approver}{when}. Version {h}. Mediscribe keeps no copy of this note."
     )
     return Document(
-        title="CARDIOLOGY OUTPATIENT CONSULTATION NOTE",
+        title=template.title,
         demo_line="DEMONSTRATION – FICTIONAL PATIENT" if demo else None,
         header_rows=rows,
         sections=sections,

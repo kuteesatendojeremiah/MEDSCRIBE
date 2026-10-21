@@ -249,8 +249,8 @@ export interface PreviewDocument {
 }
 
 /** Server-side preview of exactly what the export will contain (FR-10, §12.1). */
-export async function renderPreview(note: Note): Promise<PreviewDocument> {
-  const res = await request('/render?mode=preview', {
+export async function renderPreview(note: Note, template = 'cardiology'): Promise<PreviewDocument> {
+  const res = await request(`/render?mode=preview&template=${encodeURIComponent(template)}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ note }),
@@ -264,16 +264,20 @@ export async function renderFinal(
   approvedHash: string,
   approvedAt: number,
   format: 'docx' | 'pdf',
+  template = 'cardiology',
 ): Promise<Blob> {
-  const res = await request(`/render?mode=final&format=${format}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      note,
-      approved_hash: approvedHash,
-      approved_at: new Date(approvedAt).toISOString(),
-    }),
-  })
+  const res = await request(
+    `/render?mode=final&format=${format}&template=${encodeURIComponent(template)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        note,
+        approved_hash: approvedHash,
+        approved_at: new Date(approvedAt).toISOString(),
+      }),
+    },
+  )
   return await res.blob()
 }
 

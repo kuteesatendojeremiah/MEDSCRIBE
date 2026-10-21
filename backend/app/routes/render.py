@@ -26,6 +26,7 @@ from app.security.body import read_limited_body
 from app.security.deps import current_user
 from app.security.errors import ApiError
 from app.security.tokens import Claims
+from app.templates import DEFAULT_TEMPLATE_ID, get_template
 
 router = APIRouter()
 log = logging.getLogger("mediscribe.security")
@@ -65,6 +66,7 @@ async def render(
     request: Request,
     mode: Literal["preview", "final"] = "final",
     format: Literal["docx", "pdf"] = "docx",
+    template: str = DEFAULT_TEMPLATE_ID,
     claims: Claims = Depends(current_user),
 ):
     try:
@@ -76,12 +78,19 @@ async def render(
         raise ApiError(422, "E_BAD_REQUEST", "recoverable") from None
     note = body.note
     _validate(note)
+    try:
+        layout = get_template(template)
+    except KeyError:
+        raise ApiError(422, "E_BAD_REQUEST", "recoverable") from None
     settings = request.app.state.settings
     demo = settings.synthetic_only
 
     if mode == "preview":
         doc = build_document(
-            note, approver=note["header"]["clinician"] or claims.name or claims.sub, demo=demo
+            note,
+            approver=note["header"]["clinician"] or claims.name or claims.sub,
+            demo=demo,
+            template=layout,
         )
         return {"document": doc.as_dict()}
 
@@ -95,7 +104,11 @@ async def render(
 
     approved_at = _when(body.approved_at)
     doc = build_document(
-        note, approver=claims.name or claims.sub, approved_at=approved_at, demo=demo
+        note,
+        approver=claims.name or claims.sub,
+        approved_at=approved_at,
+        demo=demo,
+        template=layout,
     )
     data = render_pdf(doc) if format == "pdf" else render_docx(doc)
     name = neutral_file_name(approved_at, format)
