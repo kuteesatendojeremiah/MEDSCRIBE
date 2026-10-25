@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { audioBuffer } from '../audio/buffer'
 import { AudioRecorder } from '../audio/recorder'
+import { ACCEPT, UPLOAD_MESSAGES, checkUpload } from '../audio/upload'
 import { InactivityNote } from '../components/common'
 import { useNow } from '../session/hooks'
 import { runPipeline } from '../session/pipeline'
@@ -20,10 +21,14 @@ export function Record({ state }: { state: SessionState }) {
   const recorder = useRef<AudioRecorder | null>(null)
   const [micReady, setMicReady] = useState(false)
   const [micError, setMicError] = useState<'denied' | 'unavailable' | null>(null)
+  // Upload is the main input (ADR-0013); the microphone only starts when "Record now" is pressed.
+  const [source, setSource] = useState<'choose' | 'recording'>('choose')
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [dragging, setDragging] = useState(false)
 
-  // Start the microphone when capture begins; always release it on leaving the screen.
+  // Start the microphone when the clinician chooses to record; always release it on leaving.
   useEffect(() => {
-    if (phase !== 'capture') return
+    if (phase !== 'capture' || source !== 'recording') return
     const rec = new AudioRecorder()
     recorder.current = rec
     let live = true
@@ -43,7 +48,7 @@ export function Record({ state }: { state: SessionState }) {
       recorder.current = null
       setMicReady(false)
     }
-  }, [phase])
+  }, [phase, source])
 
   // Run transcription + extraction once when processing starts (and again on Retry).
   useEffect(() => {
@@ -65,6 +70,12 @@ export function Record({ state }: { state: SessionState }) {
 
   const handleFile = (file: File | undefined) => {
     if (!file) return
+    const problem = checkUpload(file)
+    if (problem) {
+      setUploadError(UPLOAD_MESSAGES[problem])
+      return
+    }
+    setUploadError(null)
     recorder.current?.release()
     audioBuffer.set(file)
     sessionStore.dispatch({ type: 'STOP' })
@@ -78,43 +89,100 @@ export function Record({ state }: { state: SessionState }) {
       <section className="card record-card">
         {phase === 'capture' && (
           <>
-            <div className={paused ? 'rec-status paused' : 'rec-status'}>
-              <span className="dot" />
-              {paused
-                ? 'PAUSED · microphone paused'
-                : micReady
-                  ? 'RECORDING · microphone on'
-                  : micError
-                    ? 'MICROPHONE UNAVAILABLE'
-                    : 'Starting microphone…'}
-            </div>
-            <div className="timer" aria-label="Recording time">
-              {formatClock(elapsed)}
-            </div>
-            <div className={paused ? 'wave paused' : 'wave'} aria-hidden="true">
-              {BARS.map((h, i) => (
-                <span key={i} style={{ height: h }} />
-              ))}
-            </div>
-            <div className="row center">
-              <button
-                type="button"
-                className="btn outline"
-                onClick={togglePause}
-                disabled={!micReady}
-              >
-                {paused ? '▶ Resume' : '❚❚ Pause'}
-              </button>
-              <button
-                type="button"
-                className="btn outline danger"
-                onClick={stop}
-                disabled={!micReady || elapsed < MIN_RECORDING_MS}
-                title={elapsed < MIN_RECORDING_MS ? 'Record for at least a second' : undefined}
-              >
-                ■ Stop &amp; process
-              </button>
-            </div>
+            <input
+              type="file"
+              accept={ACCEPT}
+              onChange={(e) => handleFile(e.target.files?.[0])}
+              data-testid="audio-file"
+              id="audio-file-input"
+              hidden
+            />
+            {source === 'choose' && (
+              <>
+                <h2>Upload the recorded consultation</h2>
+                <label
+                  htmlFor="audio-file-input"
+                  className={dragging ? 'dropzone dragging' : 'dropzone'}
+                  data-testid="dropzone"
+                  onDragOver={(e) => {
+                    e.preventDefault()
+                    setDragging(true)
+                  }}
+                  onDragLeave={() => setDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    setDragging(false)
+                    handleFile(e.dataTransfer.files?.[0])
+                  }}
+                >
+                  <strong>Choose a video or audio file</strong>
+                  <span className="muted">
+                    or drag it here · mp4, mov, webm, m4a, wav, mp3 · up to 200 MB
+                  </span>
+                </label>
+                {uploadError && (
+                  <p className="muted small" role="alert" data-testid="upload-error">
+                    {uploadError}
+                  </p>
+                )}
+                <div className="row center">
+                  <button
+                    type="button"
+                    className="btn outline"
+                    data-testid="record-now"
+                    onClick={() => setSource('recording')}
+                  >
+                    Or record now with the microphone
+                  </button>
+                </div>
+              </>
+            )}
+            {source === 'recording' && (
+              <>
+                <div className={paused ? 'rec-status paused' : 'rec-status'}>
+                  <span className="dot" />
+                  {paused
+                    ? 'PAUSED · microphone paused'
+                    : micReady
+                      ? 'RECORDING · microphone on'
+                      : micError
+                        ? 'MICROPHONE UNAVAILABLE'
+                        : 'Starting microphone…'}
+                </div>
+                <div className="timer" aria-label="Recording time">
+                  {formatClock(elapsed)}
+                </div>
+                <div className={paused ? 'wave paused' : 'wave'} aria-hidden="true">
+                  {BARS.map((h, i) => (
+                    <span key={i} style={{ height: h }} />
+                  ))}
+                </div>
+                <div className="row center">
+                  <button
+                    type="button"
+                    className="btn outline"
+                    onClick={togglePause}
+                    disabled={!micReady}
+                  >
+                    {paused ? '▶ Resume' : '❚❚ Pause'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn outline danger"
+                    onClick={stop}
+                    disabled={!micReady || elapsed < MIN_RECORDING_MS}
+                    title={elapsed < MIN_RECORDING_MS ? 'Record for at least a second' : undefined}
+                  >
+                    ■ Stop &amp; process
+                  </button>
+                </div>
+                <div className="row center">
+                  <label htmlFor="audio-file-input" className="btn small outline upload">
+                    Upload a recording instead
+                  </label>
+                </div>
+              </>
+            )}
             <div className="row center">
               <button
                 type="button"
@@ -129,26 +197,14 @@ export function Record({ state }: { state: SessionState }) {
                     sessionStore.dispatch({ type: 'END_SESSION' })
                 }}
               >
-                Discard recording
+                {source === 'recording' ? 'Discard recording' : 'Cancel'}
               </button>
-            </div>
-            <div className="row center">
-              <label className="btn small outline upload">
-                Upload synthetic audio file instead
-                <input
-                  type="file"
-                  accept="audio/*,.webm,.wav,.mp3,.ogg,.m4a"
-                  onChange={(e) => handleFile(e.target.files?.[0])}
-                  data-testid="audio-file"
-                  hidden
-                />
-              </label>
             </div>
             {micError && (
               <p className="muted small" role="alert">
                 {micError === 'denied'
-                  ? 'Microphone permission was denied. Allow microphone access for this site in your browser settings and start again, or upload a synthetic audio file instead.'
-                  : 'The microphone could not be opened. Check that it is connected and not in use, or upload a synthetic audio file instead.'}
+                  ? 'Microphone permission was denied. Allow microphone access for this site in your browser settings and start again, or upload a recording instead.'
+                  : 'The microphone could not be opened. Check that it is connected and not in use, or upload a recording instead.'}
               </p>
             )}
           </>
@@ -204,7 +260,7 @@ export function Record({ state }: { state: SessionState }) {
           <h3>Live status</h3>
           <ul className="plain checks">
             <li>✓ Audio is held in this tab only</li>
-            <li>✓ Sent over TLS for transcription when you stop</li>
+            <li>✓ Sent over TLS for transcription once you upload or stop</li>
             <li>✓ Nothing is written to disk</li>
           </ul>
         </section>
@@ -212,7 +268,8 @@ export function Record({ state }: { state: SessionState }) {
           <h3>Tip</h3>
           <p>
             Say examination findings aloud if you can (“On examination…”). Anything you don&apos;t
-            say can be typed in during review.
+            say can be typed in during review. A clear recording with little background noise gives
+            the best transcript.
           </p>
         </section>
         <InactivityNote state={state} />

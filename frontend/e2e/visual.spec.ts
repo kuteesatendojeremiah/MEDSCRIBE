@@ -1,7 +1,14 @@
 // Visual verification against the Figma frames in docs/design/ (1440 x 1000). Saves screenshots to
 // docs/design/actual/ for side-by-side comparison and asserts the measured geometry and colours.
 import { expect, test, type Locator } from '@playwright/test'
-import { approveAndDownload, fillNewSession, goToReview, handleAllHigh, signIn } from './helpers'
+import {
+  approveAndDownload,
+  fillNewSession,
+  goToReview,
+  handleAllHigh,
+  signIn,
+  startMic,
+} from './helpers'
 
 const OUT = '../docs/design/actual'
 test.use({ viewport: { width: 1440, height: 1000 } })
@@ -87,7 +94,7 @@ test('04 Record and 05 Download use the same design system (no Figma frame: scre
   await fillNewSession(page)
   await page.getByRole('checkbox').check()
   await page.getByRole('button', { name: /continue to recording/i }).click()
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
   await page.waitForTimeout(1200)
   await page.screenshot({ path: `${OUT}/04-record.png` })
   await page.getByRole('button', { name: /stop & process/i }).click()

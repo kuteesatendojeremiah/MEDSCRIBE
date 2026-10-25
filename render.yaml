@@ -1,21 +1,27 @@
-# Render Blueprint: free-tier demo deployment (synthetic data only, Blueprint §1.1, §11.1).
-# See docs/deploy.md. Not suitable for real patients: Render free gives no control over swap,
-# core dumps or proxy logging (§10.3).
+# Render Blueprint: hosted PILOT (synthetic or consented test data only, Blueprint §1.1, §11.1, ADR-0013).
+# See docs/deploy.md. Not suitable for real patients: Render gives no control over swap, core dumps or
+# proxy logging (§10.3), and guest sessions (ADR-0011) carry no identity.
+# Real speech needs memory: the "small" Whisper model wants about 2 GB, so the free plan cannot run it.
 services:
   - type: web
     name: mediscribe
     runtime: docker
-    plan: free
+    plan: standard # 2 GB RAM; free (512 MB) cannot run the local speech model
     dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:
       - key: TOKEN_SECRET
         generateValue: true
+      # Local speech model (ADR-0005): audio never leaves the container. Gate opened for this one provider only.
       - key: PROVIDER
-        value: mock
+        value: local_whisper
       - key: PROVIDER_GATE_APPROVED
-        value: "false"
+        value: "true"
+      - key: PROVIDER_ALLOW_LIST
+        value: '["local_whisper"]'
+      - key: PROVIDER_TIMEOUT_SECONDS
+        value: "600" # CPU transcription of a long recording takes minutes
       - key: DEV_AUTH_ENABLED
         value: "false"
       # Demo only (ADR-0011): no sign-in form; a guest session starts by itself. Needs SYNTHETIC_ONLY.
@@ -24,7 +30,7 @@ services:
       - key: SYNTHETIC_ONLY
         value: "true"
       - key: ENVIRONMENT
-        value: demo
+        value: pilot # /ready fails if the simulated speech provider would be served
       # Doctor accounts only (no clinical content). The free tier disk is ephemeral, so accounts reset
       # when the service restarts or spins down; run first-run setup again after a wake-up.
       - key: ACCOUNTS_FILE

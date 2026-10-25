@@ -106,7 +106,7 @@ test('uploading a synthetic audio file works and a provider timeout is recoverab
   await page.goto('/')
   await fillNewSession(page)
   await startSession(page)
-  await expect(page.getByRole('button', { name: /stop & process/i })).toBeVisible()
+  await expect(page.getByTestId('record-now')).toBeVisible()
   await page.getByTestId('audio-file').setInputFiles({
     name: 'synthetic.webm',
     mimeType: 'audio/webm',

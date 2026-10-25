@@ -7,6 +7,7 @@ import {
   signIn,
   startSession,
   approveAndDownload,
+  startMic,
 } from './helpers'
 
 const MARKER = 'SYNTHETIC-MARKER-7Q4Z'
@@ -30,7 +31,7 @@ test('the marker never reaches storage, URLs, console, file names or the back-fo
   await page.getByLabel(/temporary reference/i).fill(`OPD-07 ${MARKER}`)
   await page.getByLabel(/full name/i).fill(`Fictional ${MARKER}`)
   await startSession(page)
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
   await page.getByRole('button', { name: /stop & process/i }).click()
   await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
     timeout: 15_000,

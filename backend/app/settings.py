@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     token_absolute_seconds: int = Field(default=2 * 60 * 60, gt=0)  # absolute session limit (§6.2)
 
     # Limits (§10.4)
-    max_upload_bytes: int = Field(default=50 * 1024 * 1024, gt=0)
+    max_upload_bytes: int = Field(default=200 * 1024 * 1024, gt=0)
     rate_limit_per_minute: int = Field(default=60, gt=0)
     max_json_bytes: int = Field(
         default=5 * 1024 * 1024, gt=0

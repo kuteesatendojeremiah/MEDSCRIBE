@@ -318,11 +318,11 @@ export function NewSession({
             </p>
           </section>
           <section className="card side-card" data-testid="ns-next">
-            <h3>Next: record the consultation</h3>
+            <h3>Next: upload the recording</h3>
             <p>
-              Your browser will ask for microphone permission when you continue. You can also upload
-              a synthetic audio file. You will review and approve the note before it can be
-              downloaded.
+              Upload the recorded consultation as a video or audio file. You can also record now;
+              your browser then asks for microphone permission. You will review and approve the note
+              before it can be downloaded.
             </p>
             <p className="helper">Inactivity warning after {WARN_MS / 60000} minutes.</p>
           </section>

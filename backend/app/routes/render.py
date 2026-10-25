@@ -84,12 +84,15 @@ async def render(
         raise ApiError(422, "E_BAD_REQUEST", "recoverable") from None
     settings = request.app.state.settings
     demo = settings.synthetic_only
+    # A real local speech model means pilot wording, not "demonstration / fictional patient".
+    pilot = settings.provider == "local_whisper" and settings.provider_gate_approved
 
     if mode == "preview":
         doc = build_document(
             note,
             approver=note["header"]["clinician"] or claims.name or claims.sub,
             demo=demo,
+            pilot=pilot,
             template=layout,
         )
         return {"document": doc.as_dict()}
@@ -108,6 +111,7 @@ async def render(
         approver=claims.name or claims.sub,
         approved_at=approved_at,
         demo=demo,
+        pilot=pilot,
         template=layout,
     )
     data = render_pdf(doc) if format == "pdf" else render_docx(doc)

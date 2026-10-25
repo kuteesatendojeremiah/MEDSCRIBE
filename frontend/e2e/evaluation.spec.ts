@@ -2,7 +2,13 @@
 // its timings are not clinician review times; the file is a sample of the metrics format.
 import { writeFileSync } from 'node:fs'
 import { expect, test } from '@playwright/test'
-import { fillNewSession, handleAllHigh, startSession, approveAndDownload } from './helpers'
+import {
+  fillNewSession,
+  handleAllHigh,
+  startSession,
+  approveAndDownload,
+  startMic,
+} from './helpers'
 
 test('evaluation mode exposes content-free metrics (and is off by default)', async ({ page }) => {
   // Off by default: no hook is exposed
@@ -13,7 +19,7 @@ test('evaluation mode exposes content-free metrics (and is off by default)', asy
   expect(await page.evaluate(() => '__mediscribeEval' in window)).toBe(true)
   await fillNewSession(page)
   await startSession(page)
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
   await page.getByRole('button', { name: /stop & process/i }).click()
   await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
     timeout: 15_000,

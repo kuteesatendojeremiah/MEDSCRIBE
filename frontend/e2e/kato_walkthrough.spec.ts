@@ -9,6 +9,7 @@ import {
   signIn,
   startSession,
   approveAndDownload,
+  startMic,
 } from './helpers'
 
 const SHOTS = '../docs/phase1/screenshots'
@@ -32,7 +33,7 @@ test('Kato walk-through: New session → Record → Review → Preview → Downl
 
   // Step 2 – Record (fake microphone)
   await start.click()
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
   await page.waitForTimeout(1500)
   await page.screenshot({ path: `${SHOTS}/2-record.png` })
   await expectNoBrowserStorage(page)
@@ -114,5 +115,5 @@ test('Kato walk-through: New session → Record → Review → Preview → Downl
 
   // A fresh session after End starts with no carried-over content and a working sign-in
   await startSession(page)
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
 })

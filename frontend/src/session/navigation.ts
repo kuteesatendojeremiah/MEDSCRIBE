@@ -19,7 +19,7 @@ export const STEP_TITLES: Record<Step, string> = {
 
 export const STEP_PURPOSE: Record<Step, string> = {
   1: 'Choose the template, languages and who is present, enter a temporary reference and confirm that the patient agreed to the recording.',
-  2: 'Record the consultation, or upload a synthetic audio file. The audio is transcribed and translated, speakers are labelled, and a draft note is built.',
+  2: 'Upload the recorded consultation (video or audio), or record it now. The audio is transcribed and translated, speakers are labelled, and a draft note is built.',
   3: 'Check the transcript beside the draft note, correct speakers and wording, type findings that were not spoken, and open every HIGH review item.',
   4: 'Read the document exactly as it will be exported and approve that exact version. Any later edit cancels the approval.',
   5: 'Download the approved note with a neutral file name, file it in the official record, then end the session so nothing is kept.',

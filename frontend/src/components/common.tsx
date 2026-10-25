@@ -81,11 +81,9 @@ function CheckIcon() {
 }
 
 function demoStrip(info: ServerInfo | null): string {
-  const engine =
-    info?.speech === 'local'
-      ? `local speech model (${info.speech_model}) · audio stays on this computer`
-      : 'mock transcription (any audio returns the demo consultation)'
-  return `Demo mode · fictional patient · ${engine}`
+  if (info?.speech === 'local')
+    return `Pilot · synthetic or test data only · local speech model (${info.speech_model}) · audio is not sent to third parties`
+  return 'Demo mode · fictional patient · mock transcription (any audio returns the demo consultation)'
 }
 
 export function Shell({
@@ -130,7 +128,7 @@ export function Shell({
         {draftLabel && <span className="chip-light">{draftLabel}</span>}
         <span className="spacer" />
         <span className="chip-light" data-testid="engine-badge" title={demoStrip(info)}>
-          {info?.speech === 'local' ? 'Demo mode' : 'Demo · mock transcription'}
+          {info?.speech === 'local' ? 'Pilot · test data only' : 'Demo · mock transcription'}
           <span className="sr-only"> · {demoStrip(info)}</span>
         </span>
         {user && inSession && state.lastActivityAt !== null && (

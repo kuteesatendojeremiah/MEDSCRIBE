@@ -35,7 +35,7 @@ docker run --rm -p 8000:8000 \
 | Crash reporting strips request data | Do not install crash reporters that capture locals or request bodies. If one is required, configure it to drop request data and test with the privacy marker |
 | TLS everywhere | Terminate TLS at the proxy; HSTS on; internal hop also TLS where the proxy is off-host |
 | API keys only in server-side secret management | `TOKEN_SECRET` and any future provider keys come from the platform secret store, never the image or repo |
-| Rate and upload limits per user | `RATE_LIMIT_PER_MINUTE` (default 60), `MAX_UPLOAD_BYTES` (default 50 MB, about 50 minutes at 64 kbit/s) |
+| Rate and upload limits per user | `RATE_LIMIT_PER_MINUTE` (default 60), `MAX_UPLOAD_BYTES` (default 200 MB; the audio track of an uploaded video is read on the server) |
 | Provider gate | `PROVIDER_GATE_APPROVED=false` by default; a real adapter also needs the provider in `PROVIDER_ALLOW_LIST` (§10.5, `docs/governance/provider_gate_checklist.md`) |
 
 ## Health checks (ADR-0008)
@@ -78,3 +78,9 @@ over HTTPS at `https://<name>.onrender.com`.
   repeat the first-run setup. No clinical content is ever stored.
 - The mock provider is used (`PROVIDER_GATE_APPROVED=false`); the local speech model is not in the image.
 - Render does not give the host-level controls in the table above, so this is never for real patient data.
+
+## Pilot mode (ADR-0013)
+`render.yaml` now runs the local speech model (`PROVIDER=local_whisper`, gate open for that provider only) with `ENVIRONMENT=pilot`.
+It needs about 2 GB RAM, so the free plan cannot run it. `/api/ready` returns 503 if the simulated provider would be served.
+Still synthetic or test data only: guest sessions carry no identity and Render gives no control over swap, core dumps or proxy logging (§10.3).
+The Docker build was not run in this session; build it and upload your own recording before relying on it.

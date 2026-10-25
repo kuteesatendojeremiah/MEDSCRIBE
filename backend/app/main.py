@@ -40,6 +40,8 @@ def create_app(settings: Optional[Settings] = None, static_dir: Optional[Path] =
             "speech": "local" if local else "mock",
             "speech_model": settings.whisper_model if local else None,
             "synthetic_only": settings.synthetic_only,
+            # "pilot" only when a real speech model is actually in use; the mock is always "demo".
+            "mode": "pilot" if local else "demo",
         }
 
     @app.get("/health")
@@ -50,7 +52,13 @@ def create_app(settings: Optional[Settings] = None, static_dir: Optional[Path] =
     def ready():
         """Booleans only: no secrets, versions, paths or content. 503 until the app can serve."""
         frontend = static_dir is None or static_dir.is_dir()
-        provider = settings.provider == "mock" or settings.provider_gate_approved
+        # The mock answers every recording with the sample consultation, so outside dev/demo
+        # environments it must never count as a working speech provider (§10.5).
+        provider = (
+            settings.environment in ("dev", "demo")
+            if settings.provider == "mock"
+            else settings.provider_gate_approved
+        )
         ok = frontend and provider
         body = {
             "status": "ready" if ok else "not_ready",

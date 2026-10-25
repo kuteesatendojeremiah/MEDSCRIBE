@@ -247,6 +247,13 @@ def test_demonstration_line_present_for_synthetic_data(docx_text):
     assert "DEMONSTRATION – FICTIONAL PATIENT" in docx_text
 
 
+def test_pilot_line_replaces_demonstration_line_with_a_real_speech_model():
+    from app.render.model import build_document
+
+    doc = build_document(FINAL, approver="Dr. A. Nankya", demo=True, pilot=True)
+    assert doc.demo_line == "PILOT – SYNTHETIC OR TEST DATA ONLY"
+
+
 # --- preview ----------------------------------------------------------------------------------------
 def test_preview_returns_the_document_model_without_approval(client, auth):
     r = client.post("/render?mode=preview", json={"note": FINAL}, headers=auth)

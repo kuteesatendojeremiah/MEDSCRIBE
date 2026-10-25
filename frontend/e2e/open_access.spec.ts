@@ -3,7 +3,7 @@
 // two open-access endpoints are simulated here (the real ones are covered by backend/tests/test_open_access.py)
 // using a genuine demo token, so every other call still goes through real token checks.
 import { expect, test, type Page } from '@playwright/test'
-import { expectNoBrowserStorage, fillNewSession, handleAllHigh } from './helpers'
+import { expectNoBrowserStorage, fillNewSession, handleAllHigh, startMic } from './helpers'
 
 async function openMode(page: Page) {
   await page.route('**/api/auth/status', async (route) => {
@@ -50,7 +50,7 @@ test('Start needs consent and the clinician name, and the name is printed as the
   await page.getByLabel(/^clinician name/i).fill('Dr. A. Nankya (FICTIONAL)')
   await expect(start).toBeEnabled()
   await start.click()
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
   await page.getByRole('button', { name: /stop & process/i }).click()
   await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
     timeout: 15_000,

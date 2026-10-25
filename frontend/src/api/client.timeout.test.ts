@@ -15,11 +15,11 @@ describe('client timeouts', () => {
     vi.unstubAllGlobals()
   })
 
-  it('a hanging transcribe call fails as recoverable E_TIMEOUT after 120s and is not retried', async () => {
+  it('a hanging transcribe call fails as recoverable E_TIMEOUT after 10 minutes and is not retried', async () => {
     const f = vi.fn(hang)
     vi.stubGlobal('fetch', f)
     const p = transcribe(new Blob(['x']), 'en').catch((e) => e)
-    await vi.advanceTimersByTimeAsync(121_000)
+    await vi.advanceTimersByTimeAsync(601_000)
     const e = await p
     expect(e).toBeInstanceOf(ApiFailure)
     expect(e.code).toBe('E_TIMEOUT')

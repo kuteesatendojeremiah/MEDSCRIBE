@@ -107,6 +107,7 @@ def build_document(
     approver: str,
     approved_at: Optional[datetime] = None,
     demo: bool = True,
+    pilot: bool = False,
     template: Template = CARDIOLOGY,
 ) -> Document:
     header = note["header"]
@@ -168,7 +169,11 @@ def build_document(
     )
     return Document(
         title=template.title,
-        demo_line="DEMONSTRATION – FICTIONAL PATIENT" if demo else None,
+        demo_line=(
+            ("PILOT – SYNTHETIC OR TEST DATA ONLY" if pilot else "DEMONSTRATION – FICTIONAL PATIENT")
+            if demo
+            else None
+        ),
         header_rows=rows,
         sections=sections,
         review=rev,

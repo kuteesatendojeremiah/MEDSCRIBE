@@ -57,7 +57,7 @@ export async function goToReview(page: Page) {
   await page.goto('/')
   await fillNewSession(page)
   await startSession(page)
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
   await page.getByRole('button', { name: /stop & process/i }).click()
   await expect(page.getByRole('heading', { name: 'Clinical note' })).toBeVisible({
     timeout: 15_000,
@@ -94,4 +94,10 @@ export async function approveAndDownload(page: Page) {
     page.getByTestId('download-file').click(),
   ])
   return download
+}
+
+/** Upload is the main input (ADR-0013); the microphone starts only after "Record now". */
+export async function startMic(page: Page) {
+  await page.getByTestId('record-now').click()
+  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
 }

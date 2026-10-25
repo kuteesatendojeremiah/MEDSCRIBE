@@ -1,7 +1,13 @@
 // Stage I (§6.3, FR-15): microphone denial, network loss and a slow server are recoverable and keep
 // the draft; clearing the session leaves nothing behind. Synthetic data only.
 import { expect, test } from '@playwright/test'
-import { expectNoBrowserStorage, fillNewSession, goToReview, startSession } from './helpers'
+import {
+  expectNoBrowserStorage,
+  fillNewSession,
+  goToReview,
+  startSession,
+  startMic,
+} from './helpers'
 
 test('microphone permission denied explains what to do and offers the upload fallback', async ({
   page,
@@ -13,6 +19,7 @@ test('microphone permission denied explains what to do and offers the upload fal
   await page.goto('/')
   await fillNewSession(page)
   await startSession(page)
+  await page.getByTestId('record-now').click()
   await expect(page.getByText(/Microphone permission was denied/)).toBeVisible({ timeout: 10_000 })
   await expect(page.getByTestId('audio-file')).toBeAttached()
   await expectNoBrowserStorage(page)
@@ -26,7 +33,7 @@ test('a network drop while transcribing keeps the draft and Retry recovers', asy
   await page.goto('/')
   await fillNewSession(page)
   await startSession(page)
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
   await page.getByRole('button', { name: /stop & process/i }).click()
   await expect(page.getByText(/Processing failed – your draft is kept/)).toBeVisible({
     timeout: 15_000,
@@ -50,7 +57,7 @@ test('a provider timeout from the server is shown as recoverable', async ({ page
   await page.goto('/')
   await fillNewSession(page)
   await startSession(page)
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
   await page.getByRole('button', { name: /stop & process/i }).click()
   await expect(page.getByText('E_PROVIDER_TIMEOUT')).toBeVisible({ timeout: 15_000 })
   await expect(page.getByText(/took too long to answer/)).toBeVisible()
@@ -78,12 +85,30 @@ test('Discard recording asks first, then ends the session and releases the micro
   await page.goto('/')
   await fillNewSession(page)
   await startSession(page)
-  await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible({ timeout: 10_000 })
+  await startMic(page)
   page.once('dialog', (d) => d.dismiss())
   await page.getByTestId('discard-recording').click()
   await expect(page.getByText(/RECORDING · microphone on/)).toBeVisible() // still recording
   page.once('dialog', (d) => d.accept())
   await page.getByTestId('discard-recording').click()
   await expect(page.getByText(/RECORDING/)).toHaveCount(0)
+  await expectNoBrowserStorage(page)
+})
+
+test('Record opens on upload; the microphone stays off until Record now (ADR-0013)', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await fillNewSession(page)
+  await startSession(page)
+  await expect(page.getByTestId('dropzone')).toBeVisible()
+  await expect(page.getByText(/RECORDING · microphone on/)).toHaveCount(0)
+  await page.getByTestId('audio-file').setInputFiles({
+    name: 'notes.pdf',
+    mimeType: 'application/pdf',
+    buffer: Buffer.from('not audio'),
+  })
+  await expect(page.getByTestId('upload-error')).toContainText('not an audio or video')
+  await expect(page.getByTestId('dropzone')).toBeVisible() // still on the upload choice
   await expectNoBrowserStorage(page)
 })

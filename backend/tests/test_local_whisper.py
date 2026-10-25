@@ -86,6 +86,7 @@ def test_info_endpoint_is_honest_about_mock_vs_local():
         "speech": "mock",
         "speech_model": None,
         "synthetic_only": True,
+        "mode": "demo",
     }
     s = make_settings(
         provider="local_whisper", provider_gate_approved=True, provider_allow_list=["local_whisper"]

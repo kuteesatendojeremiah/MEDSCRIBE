@@ -44,7 +44,7 @@ const TIMEOUT_MS = {
   wake: 90_000,
   extract: 60_000,
   render: 60_000,
-  transcribe: 120_000,
+  transcribe: 600_000,
 }
 const timeoutFor = (path: string) =>
   path === '/auth/status' || path === '/info'
@@ -293,6 +293,8 @@ export interface ServerInfo {
   speech: 'mock' | 'local'
   speech_model: string | null
   synthetic_only: boolean
+  /** "pilot" when a real speech model is in use, "demo" for the simulated one. */
+  mode: 'pilot' | 'demo'
 }
 
 /** What is processing audio: lets the UI say honestly whether a real model is in use. */
